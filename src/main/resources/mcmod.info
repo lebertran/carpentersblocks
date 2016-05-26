@@ -1,0 +1,16 @@
+[
+{
+  "modid": "carpentersblocks",
+  "name": "Carpenter's Blocks",
+  "description": "Expanding minecraft's food system.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "http://eichler.tk",
+  "updateUrl": "",
+  "authorList": ["Samuel Mahler", "leber_tran"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,0 +1,71 @@
+/**
+ * Carpenter's Blocks
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = JavaVersion.VERSION_1_8
+//noinspection GroovyUnusedAssignment
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext.configFile = file('build.properties')
+//noinspection GroovyAssignabilityCheck
+ext.config = parseConfig(configFile)
+
+version = config.version
+group="tk.eichler.carpentersblocks"
+//noinspection GroovyUnusedAssignment
+archivesBaseName = "${config.mod_id}"
+
+minecraft {
+    version = config.forge_version
+    runDir = "run"
+    
+    mappings = config.mc_mappings
+
+    replace 'PROP:ID', config.mod_id
+    replace 'PROP:NAME', config.mod_name
+    replace 'PROP:VERSION', config.version
+}
+
+dependencies {
+    //deobfCompile "mcp.mobius.waila:Waila:1.7.0-B3_1.9.4"
+}
+
+//noinspection GroovyAssignabilityCheck
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+def parseConfig(File config) {
+    config.withReader {
+        def prop = new Properties()
+        prop.load(it)
+        return (new ConfigSlurper().parse(prop))
+    }
+}
