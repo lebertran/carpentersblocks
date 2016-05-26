@@ -1,5 +1,6 @@
 package tk.eichler.carpentersblocks;
 
+import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -26,6 +27,8 @@ public class CarpentersBlocks {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         proxy.init(event);
+
+        FMLLog.bigWarning("Constant test %s", Constants.MOD_NAME);
     }
 
     @Mod.EventHandler

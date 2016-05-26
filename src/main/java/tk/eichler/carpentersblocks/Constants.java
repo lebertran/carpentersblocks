@@ -5,8 +5,8 @@ public class Constants {
     /**
      * These constants are replaced by gradle.
      */
-    public static final String MOD_ID = "PROP:ID";
-    public static final String MOD_NAME = "PROP:NAME";
+    public static final String MOD_ID = "carpentersblocks";
+    public static final String MOD_NAME = "Carpenter's Blocks";
     public static final String VERSION = "PROP:VERSION";
 
     /**
