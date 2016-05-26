@@ -40,6 +40,8 @@ minecraft {
     replace 'PROP:ID', config.mod_id
     replace 'PROP:NAME', config.mod_name
     replace 'PROP:VERSION', config.version
+
+    replaceIn 'Constants.java'
 }
 
 dependencies {
