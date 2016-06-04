@@ -15,26 +15,26 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks;
+package tk.eichler.carpentersblocks.blocks;
 
-public class Constants {
+import net.minecraft.util.IStringSerializable;
 
-    public static final String MOD_ID = "carpentersblocks";
-    public static final String MOD_NAME = "Carpenter's Blocks";
+import javax.annotation.Nonnull;
 
-    /**
-     * This constant is replaced by gradle.
-     */
-    public static final String VERSION = "PROP:VERSION";
+// State enum
+public enum EnumShape implements IStringSerializable {
+    FULL_BLOCK("full_block"), BOTTOM_SLAB("bottom_slab");
 
+    String name;
 
-    /**
-     * Proxy constants
-     */
-    public static final String SERVER_PROXY = "tk.eichler.carpentersblocks.proxy.CommonProxy";
-    public static final String CLIENT_PROXY = "tk.eichler.carpentersblocks.proxy.ClientProxy";
-
-    private Constants() {
-        // do not create object
+    EnumShape(String name) {
+        this.name = name;
     }
+
+    @Override
+    @Nonnull
+    public String getName() {
+        return name;
+    }
+
 }

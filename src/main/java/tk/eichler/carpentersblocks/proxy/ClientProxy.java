@@ -17,14 +17,26 @@
 
 package tk.eichler.carpentersblocks.proxy;
 
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import tk.eichler.carpentersblocks.registry.BaseRegistry;
 
 @SuppressWarnings("unused")
 public class ClientProxy extends CommonProxy {
 
-    @SubscribeEvent
-    public void onModelBakeEvent(ModelBakeEvent event) {
-        event.getModelRegistry().getKeys();
+    @Override
+    public void preInit(FMLPreInitializationEvent event) {
+        super.preInit(event);
+
+        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
+            registry.onPreInitClient();
+    }
+
+    @Override
+    public void init(FMLInitializationEvent event) {
+        super.init(event);
+
+        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
+            registry.onInitClient();
     }
 }

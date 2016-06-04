@@ -2,7 +2,7 @@
 {
   "modid": "carpentersblocks",
   "name": "Carpenter's Blocks",
-  "description": "Expanding minecraft's food system.",
+  "description": "Port of Carpenter's Blocks to 1.9.4",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "http://eichler.tk",

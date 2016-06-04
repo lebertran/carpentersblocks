@@ -15,26 +15,30 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks;
+package tk.eichler.carpentersblocks.blocks;
 
-public class Constants {
+import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 
-    public static final String MOD_ID = "carpentersblocks";
-    public static final String MOD_NAME = "Carpenter's Blocks";
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-    /**
-     * This constant is replaced by gradle.
-     */
-    public static final String VERSION = "PROP:VERSION";
+public class BlockHelper {
+    @Nullable
+    public static Block getBlockFromItemStack(@Nonnull ItemStack stack) {
+        if (stack.getItem() == null) return null;
 
+        return Block.getBlockFromItem(stack.getItem());
+    }
 
-    /**
-     * Proxy constants
-     */
-    public static final String SERVER_PROXY = "tk.eichler.carpentersblocks.proxy.CommonProxy";
-    public static final String CLIENT_PROXY = "tk.eichler.carpentersblocks.proxy.ClientProxy";
+    public static boolean isValidCarpentersProp(ItemStack blockProp){
+        if (blockProp == null) return false;
 
-    private Constants() {
-        // do not create object
+        final Block block = Block.getBlockFromItem(blockProp.getItem());
+
+        if (block instanceof BaseBlock) return false;
+
+        if (block.getDefaultState().getMaterial().isSolid()) return true;
+        return false;
     }
 }

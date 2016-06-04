@@ -20,18 +20,19 @@ package tk.eichler.carpentersblocks.proxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import tk.eichler.carpentersblocks.registry.BaseRegistry;
 
-public abstract class CommonProxy {
+public class CommonProxy {
 
     public void preInit(FMLPreInitializationEvent event) {
-
+        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
+            registry.onPreInit();
     }
 
     public void init(FMLInitializationEvent event) {
-
+        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
+            registry.onInit();
     }
 
-    public void postInit(FMLPostInitializationEvent event) {
-
-    }
+    public void postInit(FMLPostInitializationEvent event) {}
 }

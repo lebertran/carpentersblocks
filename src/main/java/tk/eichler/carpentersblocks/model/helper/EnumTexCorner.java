@@ -15,26 +15,21 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks;
+package tk.eichler.carpentersblocks.model.helper;
 
-public class Constants {
+public enum EnumTexCorner {
+    UPPER_LEFT(0, 16),
+    UPPER_RIGHT(16, 16),
+    MIDDLE_LEFT(0, 8),
+    MIDDLE_RIGHT(16, 8),
+    BOTTOM_LEFT(0, 0),
+    BOTTOM_RIGHT(16, 0);
 
-    public static final String MOD_ID = "carpentersblocks";
-    public static final String MOD_NAME = "Carpenter's Blocks";
+    int x;
+    int y;
 
-    /**
-     * This constant is replaced by gradle.
-     */
-    public static final String VERSION = "PROP:VERSION";
-
-
-    /**
-     * Proxy constants
-     */
-    public static final String SERVER_PROXY = "tk.eichler.carpentersblocks.proxy.CommonProxy";
-    public static final String CLIENT_PROXY = "tk.eichler.carpentersblocks.proxy.ClientProxy";
-
-    private Constants() {
-        // do not create object
+    EnumTexCorner(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }

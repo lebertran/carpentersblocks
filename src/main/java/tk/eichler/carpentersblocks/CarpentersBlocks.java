@@ -17,23 +17,38 @@
 
 package tk.eichler.carpentersblocks;
 
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
 import tk.eichler.carpentersblocks.proxy.CommonProxy;
 
+import javax.annotation.Nonnull;
+
+@SuppressWarnings("unused")
 @Mod(modid = Constants.MOD_ID, name = Constants.MOD_NAME, version = Constants.VERSION)
 public class CarpentersBlocks {
 
-
     @Mod.Instance(Constants.MOD_ID)
-    public static CarpentersBlocks instance;
+    public static CarpentersBlocks INSTANCE;
 
     @SidedProxy(serverSide = Constants.SERVER_PROXY, clientSide = Constants.CLIENT_PROXY)
     public static CommonProxy proxy;
+
+    public static CreativeTabs creativeTabs = new CreativeTabs(Constants.MOD_ID) {
+        @Override
+        @Nonnull
+        @SideOnly(Side.CLIENT)
+        public Item getTabIconItem() {
+            return BlockCarpentersBlock.INSTANCE.getItemBlock();
+        }
+    };
 
 
     @Mod.EventHandler

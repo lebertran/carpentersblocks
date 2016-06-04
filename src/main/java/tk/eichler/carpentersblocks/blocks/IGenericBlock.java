@@ -15,7 +15,14 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.proxy;
+package tk.eichler.carpentersblocks.blocks;
 
-public class ServerProxy extends CommonProxy {
+public interface IGenericBlock {
+
+
+    void registerBlock();
+
+    void initCustomModelLocations();
+
+    default void registerTileEntity() {}
 }
