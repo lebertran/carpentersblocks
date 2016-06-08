@@ -15,30 +15,28 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.blocks;
+package tk.eichler.carpentersblocks.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.IStringSerializable;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-public class BlockHelper {
-    @Nullable
-    public static Block getBlockFromItemStack(@Nonnull ItemStack stack) {
-        if (stack.getItem() == null) return null;
+// State enum
+public enum EnumShape implements IStringSerializable {
+    FULL_BLOCK("full_block"),
+    TOP_SLAB("top_slab"),
+    BOTTOM_SLAB("bottom_slab");
 
-        return Block.getBlockFromItem(stack.getItem());
+    private final String name;
+
+    EnumShape(String name) {
+        this.name = name;
     }
 
-    public static boolean isValidCarpentersProp(ItemStack blockProp){
-        if (blockProp == null) return false;
-
-        final Block block = Block.getBlockFromItem(blockProp.getItem());
-
-        if (block instanceof BaseBlock) return false;
-
-        if (block.getDefaultState().getMaterial().isSolid()) return true;
-        return false;
+    @Override
+    @Nonnull
+    public String getName() {
+        return name;
     }
+
 }

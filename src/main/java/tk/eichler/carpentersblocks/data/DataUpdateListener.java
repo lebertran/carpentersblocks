@@ -15,30 +15,8 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.model.helper;
+package tk.eichler.carpentersblocks.data;
 
-public enum EnumTexCorner {
-    //Bitte nicht löschen!
-    /*UPPER_LEFT(0, 16),
-    UPPER_RIGHT(16, 16),
-    MIDDLE_LEFT(0, 8),
-    MIDDLE_RIGHT(16, 8),
-    BOTTOM_LEFT(0, 0),
-    BOTTOM_RIGHT(16, 0);*/
-
-    UPPER_LEFT(0, 0),
-    UPPER_RIGHT(16, 0),
-    MIDDLE_LEFT(0, 8),
-    MIDDLE_RIGHT(16, 8),
-    CENTER(8,8),
-    BOTTOM_LEFT(0, 16),
-    BOTTOM_RIGHT(16, 16);
-
-    final int x;
-    final int y;
-
-    EnumTexCorner(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
+public interface DataUpdateListener {
+    void onDataUpdate();
 }

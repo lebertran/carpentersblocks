@@ -32,7 +32,7 @@ public class TextureRegistry extends BaseRegistry {
             RESOURCE_QUARTERED_FRAME
     };
 
-    public static TextureRegistry INSTANCE = new TextureRegistry();
+    public static final TextureRegistry INSTANCE = new TextureRegistry();
 
     @Override
     public boolean receivesEvents() {

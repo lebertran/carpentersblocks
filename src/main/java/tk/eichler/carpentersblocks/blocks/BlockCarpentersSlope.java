@@ -17,24 +17,27 @@
 
 package tk.eichler.carpentersblocks.blocks;
 
-import net.minecraft.util.IStringSerializable;
+import mcp.MethodsReturnNonnullByDefault;
+import tk.eichler.carpentersblocks.model.BaseModel;
+import tk.eichler.carpentersblocks.model.CarpentersSlopeModel;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-// State enum
-public enum EnumShape implements IStringSerializable {
-    FULL_BLOCK("full_block"), BOTTOM_SLAB("bottom_slab");
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class BlockCarpentersSlope extends BlockShapeable {
+    private static final String registerName = "carpentersslope";
 
-    String name;
+    // Instance
+    public static final BlockCarpentersSlope INSTANCE = new BlockCarpentersSlope();
 
-    EnumShape(String name) {
-        this.name = name;
+    @Override
+    public String getRegisterName() {
+        return registerName;
     }
 
     @Override
-    @Nonnull
-    public String getName() {
-        return name;
+    public BaseModel getModel() {
+        return new CarpentersSlopeModel();
     }
-
 }

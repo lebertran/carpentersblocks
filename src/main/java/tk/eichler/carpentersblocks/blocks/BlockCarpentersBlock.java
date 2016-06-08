@@ -17,117 +17,97 @@
 
 package tk.eichler.carpentersblocks.blocks;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import tk.eichler.carpentersblocks.tileentities.CarpentersBlockTileEntity;
+import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.common.FMLLog;
+import tk.eichler.carpentersblocks.data.DataProperty;
+import tk.eichler.carpentersblocks.data.ShapeableData;
+import tk.eichler.carpentersblocks.model.BaseModel;
+import tk.eichler.carpentersblocks.model.CarpentersBlockModel;
+import tk.eichler.carpentersblocks.util.BlockHelper;
+import tk.eichler.carpentersblocks.util.EnumShape;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A cubic block that can be transformed into various slabs.
- */
-public class BlockCarpentersBlock extends BlockCoverable {
+import static tk.eichler.carpentersblocks.util.EnumShape.FULL_BLOCK;
+
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class BlockCarpentersBlock extends BlockShapeable {
 
     // Registry name
-    public static final String registerName = "carpentersblock";
-
-    public static final PropertyEnum<EnumShape> PROP_ENUM_SHAPE = PropertyEnum.create("states", EnumShape.class);
+    private static final String registerName = "carpentersblock";
 
     // Collision boxes
-    protected static final AxisAlignedBB COLLISION_FULL_BLOCK = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-    protected static final AxisAlignedBB COLLISION_SLAB_BOTTOM = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+    private static final AxisAlignedBB COLLISION_FULL_BLOCK = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+    private static final AxisAlignedBB COLLISION_SLAB_BOTTOM = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+    private static final AxisAlignedBB COLLISION_SLAB_TOP = new AxisAlignedBB(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
 
     // Instance
     public static final BlockCarpentersBlock INSTANCE = new BlockCarpentersBlock();
 
-
-    // Constructor
-    private BlockCarpentersBlock() {
-        super(Material.WOOD);
-
-        setDefaultState(getDefaultState().withProperty(PROP_ENUM_SHAPE, EnumShape.FULL_BLOCK));
-        this.useNeighborBrightness = true;
-    }
-
-    @Override
-    public boolean getUseNeighborBrightness(IBlockState state) {
-        return true;
-    }
-
-    /**
-     * Override methods
-     */
-    @Nonnull
     @Override
     public String getRegisterName() {
         return registerName;
     }
 
-    @Override
-    public IProperty<?> getShapeProperty() {
-        return PROP_ENUM_SHAPE;
-    }
 
     @Override
-    public void registerTileEntity() {
-        GameRegistry.registerTileEntity(CarpentersBlockTileEntity.class, BlockCarpentersBlock.registerName + ":tile_entity");
-    }
+    @SuppressWarnings("deprecation")
+    public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
+        final IBlockState borderingState = blockAccess.getBlockState(pos.offset(side));
+        final ShapeableData data = getShapeableData(blockState);
 
+        if (data.coveringBlock == Blocks.GLASS || data.coveringBlock == Blocks.STAINED_GLASS) {
+            if (BlockHelper.doesRenderTransparentSide(blockState, borderingState)) { //@TODO Shape check
+                return false;
+            }
+        }
 
-    @Override
-    public boolean shouldSideBeRendered(IBlockState blockState, @Nonnull IBlockAccess blockAccess, @Nonnull  BlockPos pos, EnumFacing side) {
         return true;
     }
 
-    /**
-     * Rendering implementations
-     */
+    @Override
+    public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+        return false;
+    }
 
 
     @Override
-    @Nonnull
+    @SuppressWarnings("deprecation")
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        final EnumShape enumState = state.getValue(PROP_ENUM_SHAPE);
+        final EnumShape shape = state.getValue(PROP_SHAPE);
 
-        if (enumState == EnumShape.FULL_BLOCK) {
-            return COLLISION_FULL_BLOCK;
-        } else if (enumState == EnumShape.BOTTOM_SLAB){
-            return COLLISION_SLAB_BOTTOM;
+        switch (shape) {
+            case BOTTOM_SLAB:
+                return COLLISION_SLAB_BOTTOM;
+            case TOP_SLAB:
+                return COLLISION_SLAB_TOP;
+            case FULL_BLOCK:
+                return COLLISION_FULL_BLOCK;
+            default:
+                FMLLog.severe("Invalid shape");
+                return COLLISION_FULL_BLOCK;
         }
-
-        return COLLISION_FULL_BLOCK;
     }
 
     @Override
-    public boolean isFullCube(IBlockState state) {
-        if (state.getValue(PROP_ENUM_SHAPE) == EnumShape.FULL_BLOCK) {
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isSideSolid(IBlockState base_state, @Nonnull IBlockAccess world, @Nonnull BlockPos pos, EnumFacing side) {
-        if (base_state.getValue(PROP_ENUM_SHAPE) == EnumShape.FULL_BLOCK) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Data implementations
-     */
-    @Override
-    public int getMetaFromState(IBlockState state) {
-        return state.getValue(PROP_ENUM_SHAPE).ordinal();
+    public BaseModel getModel() {
+        return new CarpentersBlockModel();
     }
 }

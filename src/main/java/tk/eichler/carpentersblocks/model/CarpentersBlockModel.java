@@ -17,6 +17,7 @@
 
 package tk.eichler.carpentersblocks.model;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -27,44 +28,49 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import tk.eichler.carpentersblocks.blocks.BlockCoverable;
-import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
-import tk.eichler.carpentersblocks.blocks.EnumShape;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.input.Mouse;
+import tk.eichler.carpentersblocks.data.DataProperty;
+import tk.eichler.carpentersblocks.data.ShapeableData;
 import tk.eichler.carpentersblocks.model.helper.BakedQuadHelper;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
+import tk.eichler.carpentersblocks.util.EnumShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CarpentersCoverableModel implements IBakedModel {
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class CarpentersBlockModel extends BaseModel {
 
-    /**
-     * Default texture
-     */
     private final TextureAtlasSprite base;
-
-    /**
-     * Covering block model
-     */
     private IBakedModel coveringModel = null;
 
-    public CarpentersCoverableModel() {
+
+    public CarpentersBlockModel() {
         this.base = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString());
     }
 
     @Override
-    @Nonnull
-    public List<BakedQuad> getQuads(IBlockState state, EnumFacing facing, long rand) {
+    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing facing, long rand) {
         final List<BakedQuad> ret = new ArrayList<>();
 
         if (state == null || ! (state instanceof IExtendedBlockState)) {
             return ret;
         }
 
-        final EnumShape enumShape = state.getValue(BlockCarpentersBlock.PROP_ENUM_SHAPE);
-        final ItemStack coverBlock = ((IExtendedBlockState) state).getValue(BlockCoverable.PROP_COVER_BLOCK);
+        ShapeableData data = ((IExtendedBlockState) state).getValue(DataProperty.SHAPEABLE_DATA);
+
+        if (data == null) {
+            data = ShapeableData.createInstance();
+        }
+
+        final EnumShape enumShape = data.currentShape;
+        final ItemStack coverBlock = data.itemStack;
 
         if (coverBlock != null) {
             this.coveringModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(coverBlock);
@@ -72,6 +78,12 @@ public class CarpentersCoverableModel implements IBakedModel {
             final List<BakedQuad> originalQuads = coveringModel.getQuads(state, facing, rand);
 
             for (BakedQuad quad : originalQuads) {
+                if (facing == null) {
+                    facing = EnumFacing.UP;
+
+                    FMLLog.severe("Facing is null.");
+                }
+
                 ret.add(getBakedQuad(enumShape, facing, quad));
             }
         } else {
@@ -85,15 +97,7 @@ public class CarpentersCoverableModel implements IBakedModel {
         return ret;
     }
 
-    /**
-     * Returns a {@link BakedQuad} object, depending on the given shape, facing and quad.
-     *
-     * @param shape Shape of the block, as defined in {@link EnumShape}
-     * @param bakedQuad A BakedQuad of a covering block, or null which yields a BakedQuad with the default texture.
-     * @return A {@link BakedQuad}
-     */
-    @Nonnull
-    private BakedQuad getBakedQuad(@Nonnull EnumShape shape, @Nonnull EnumFacing facing, @Nullable BakedQuad bakedQuad) {
+    private BakedQuad getBakedQuad(EnumShape shape, EnumFacing facing, @Nullable BakedQuad bakedQuad) {
         switch (shape) {
             case FULL_BLOCK:
                 if (bakedQuad == null)
@@ -105,6 +109,10 @@ public class CarpentersCoverableModel implements IBakedModel {
                     return BakedQuadHelper.createBakedQuadBottomSlab(base, facing);
 
                 return BakedQuadHelper.createBakedQuadBottomSlab(bakedQuad);
+            case TOP_SLAB:
+                if (bakedQuad == null)
+                    return BakedQuadHelper.createBakedQuadTopSlab(base, facing);
+                return BakedQuadHelper.createBakedQuadTopSlab(bakedQuad);
             default:
                 assert false : "Invalid shape.";
                 return null;
@@ -112,37 +120,11 @@ public class CarpentersCoverableModel implements IBakedModel {
     }
 
     @Override
-    public boolean isGui3d() {
-        return true;
-    }
-
-    @Override
-    public boolean isAmbientOcclusion() {
-        return true;
-    }
-
-    @Override
-    public boolean isBuiltInRenderer() { return false; }
-
-    @Override
-    @Nonnull
     public TextureAtlasSprite getParticleTexture() {
         if (coveringModel != null) {
             return coveringModel.getParticleTexture();
         }
+
         return this.base;
     }
-
-    @Override
-    @Nonnull
-    public ItemCameraTransforms getItemCameraTransforms() {
-        return ItemCameraTransforms.DEFAULT;
-    }
-
-    @Override
-    @Nonnull
-    public ItemOverrideList getOverrides() {
-        return ItemOverrideList.NONE;
-    }
-
 }

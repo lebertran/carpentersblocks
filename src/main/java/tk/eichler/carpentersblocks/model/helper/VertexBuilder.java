@@ -17,22 +17,47 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
+import com.google.common.primitives.Ints;
+import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.common.FMLLog;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class VertexBuilder {
+    public static final int[] EMPTY = new int[28];
+
     private float x;
     private float y;
     private float z;
 
-    private float u;
-    private float v;
+    public EnumTexCorner corner;
 
-    private EnumFacing facing;
+    private final int color;
+    private final EnumFacing enumFacing;
 
     public VertexBuilder(EnumFacing facing) {
-        this.facing = facing;
+        this.color = ModelHelper.getFaceShadeColor(facing);
+        this.enumFacing = facing;
+    }
+
+    public VertexBuilder withNewFacing(EnumFacing newFacing) {
+        if (this.enumFacing == newFacing) {
+            return this.clone();
+        }
+
+        final EnumCoords coords = EnumCoords.getCoords(newFacing, this.corner);
+
+        if (coords == null) {
+            throw new UnsupportedOperationException("Invalid facing or corner.");
+        }
+
+        return new VertexBuilder(newFacing).withCoords(coords).withTextureMapping(this.corner);
     }
 
     public VertexBuilder withCoords(Vec3d vec3d) {
@@ -51,18 +76,22 @@ public class VertexBuilder {
         return this;
     }
 
-    public VertexBuilder withTextureMapping(float u, float v) {
-        this.u = u;
-        this.v = v;
+    public VertexBuilder withCoords(EnumCoords enumCoords) {
+        this.x = enumCoords.x;
+        this.y = enumCoords.y;
+        this.z = enumCoords.z;
 
         return this;
     }
 
     public VertexBuilder withTextureMapping(EnumTexCorner corner) {
-        this.u = corner.x;
-        this.v = corner.y;
+        this.corner = corner;
 
         return this;
+    }
+
+    public VertexBuilder addY(float y) {
+        return clone().withCoords(this.x, this.y + y, this.z);
     }
 
     public int[] toIntArray(TextureAtlasSprite sprite) {
@@ -70,10 +99,26 @@ public class VertexBuilder {
                 Float.floatToRawIntBits(x),
                 Float.floatToRawIntBits(y),
                 Float.floatToRawIntBits(z),
-                ModelHelper.getFaceShadeColor(facing),
-                Float.floatToRawIntBits(sprite.getInterpolatedU(u)),
-                Float.floatToRawIntBits(sprite.getInterpolatedV(v)),
+                color,
+                Float.floatToRawIntBits(sprite.getInterpolatedU(corner.x)),
+                Float.floatToRawIntBits(sprite.getInterpolatedV(corner.y)),
                 0
         };
+    }
+
+    @SuppressWarnings("CloneDoesntCallSuperClone")
+    @Override
+    public VertexBuilder clone() {
+        return new VertexBuilder(this.enumFacing).withCoords(this.x, this.y, this.z).withTextureMapping(corner);
+    }
+
+    public static VertexBuilder[] transformY(VertexBuilder[] vertices, float length) { //@todo clean code
+        final VertexBuilder[] result = new VertexBuilder[vertices.length];
+
+        for (int i = 0; i < vertices.length; i++) {
+            result[i] = vertices[i].addY(length);
+        }
+
+        return result;
     }
 }

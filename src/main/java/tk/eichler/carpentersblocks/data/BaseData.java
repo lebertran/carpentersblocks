@@ -15,14 +15,26 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.blocks;
+package tk.eichler.carpentersblocks.data;
 
-public interface IGenericBlock {
+import mcp.MethodsReturnNonnullByDefault;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.HashSet;
+import java.util.Set;
 
-    void registerBlock();
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+abstract class BaseData {
+    private final Set<DataUpdateListener> listeners = new HashSet<>();
 
-    void initCustomModelLocations();
+    public void addUpdateListener(DataUpdateListener listener) {
+        listeners.add(listener);
+    }
 
-    default void registerTileEntity() {}
+    void onDataUpdated() {
+        for (DataUpdateListener listener : this.listeners) {
+            listener.onDataUpdate();
+        }
+    }
 }

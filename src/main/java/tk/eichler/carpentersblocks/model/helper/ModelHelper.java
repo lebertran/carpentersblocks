@@ -17,20 +17,24 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
+import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class ModelHelper {
 
     private ModelHelper() {
         // do not instantiate this helper class
     }
 
-    @Nonnull
-    public static Vec3d rotate(@Nonnull Vec3d vec, @Nonnull EnumFacing side) {
+    @SuppressWarnings("SuspiciousNameCombination")
+    public static Vec3d rotate(Vec3d vec, EnumFacing side) {
         switch (side) {
             case UP:    return new Vec3d( vec.xCoord,  vec.yCoord,  vec.zCoord);
             case DOWN:  return new Vec3d( vec.xCoord, -vec.yCoord, -vec.zCoord);

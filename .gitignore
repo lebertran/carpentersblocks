@@ -26,5 +26,12 @@ classes
 *.jar
 !/gradle/wrapper/gradle-wrapper.jar
 
+# Floobits
+.flooignore
+.floo
+
+# others
+cube.jpg
+
 
 
