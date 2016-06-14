@@ -47,11 +47,6 @@ public enum EnumCoords {
     CENTERHORIZ_BOTTOMRIGHT(1, 0.5F, 1, UP, BOTTOM_RIGHT), // CG
     CENTERHORIZ_UPPERRIGHT(1, 0.5F, 0, UP, UPPER_RIGHT), // DH
 
-    CENTERVERT_UPPERLEFT(0.5F, 1, 0, WEST, UPPER_LEFT), // EH
-    CENTERVERT_BOTTOMLEFT(0.5F, 0, 0, WEST, BOTTOM_LEFT), // AD
-    CENTERVERT_BOTTOMRIGHT(0.5F, 0, 1, WEST, BOTTOM_RIGHT), // BC
-    CENTERVERT_UPPERRIGHT(0.5F, 1, 1, WEST, UPPER_RIGHT), // FG
-
     CENTER_WEST(0, 0.5F, 0.5F, WEST, CENTER),
     CENTER_EAST(1, 0.5F, 0.5F, EAST, CENTER),
 
@@ -65,30 +60,38 @@ public enum EnumCoords {
     NORTH_UPPERRIGHT(TOP_UPPERLEFT, NORTH, UPPER_RIGHT),
     NORTH_BOTTOMLEFT(BOTTOM_BOTTOMRIGHT, NORTH, BOTTOM_LEFT),
     NORTH_BOTTOMRIGHT(BOTTOM_BOTTOMLEFT, NORTH, BOTTOM_RIGHT),
-    
+    NORTH_MIDDLELEFT(CENTERHORIZ_UPPERRIGHT, NORTH, MIDDLE_LEFT),
+    NORTH_MIDDLERIGHT(CENTERHORIZ_UPPERLEFT, NORTH, MIDDLE_RIGHT),
+
     SOUTH_UPPERLEFT(TOP_BOTTOMLEFT, SOUTH, UPPER_LEFT),
     SOUTH_UPPERRIGHT(TOP_BOTTOMRIGHT, SOUTH, UPPER_RIGHT),
     SOUTH_BOTTOMLEFT(BOTTOM_UPPERLEFT, SOUTH, BOTTOM_LEFT),
     SOUTH_BOTTOMRIGHT(BOTTOM_UPPERRIGHT, SOUTH, BOTTOM_RIGHT),
+    SOUTH_MIDDLELEFT(CENTERHORIZ_BOTTOMLEFT, SOUTH, MIDDLE_LEFT),
+    SOUTH_MIDDLERIGHT(CENTERHORIZ_BOTTOMRIGHT, SOUTH, MIDDLE_RIGHT),
 
     EAST_UPPERLEFT(TOP_BOTTOMRIGHT, EAST, UPPER_LEFT),
     EAST_UPPERRIGHT(TOP_UPPERRIGHT, EAST, UPPER_RIGHT),
     EAST_BOTTOMLEFT(BOTTOM_UPPERRIGHT, EAST, BOTTOM_LEFT),
     EAST_BOTTOMRIGHT(BOTTOM_BOTTOMRIGHT, EAST, BOTTOM_RIGHT),
+    EAST_MIDDLELEFT(CENTERHORIZ_BOTTOMRIGHT, EAST, MIDDLE_LEFT),
+    EAST_MIDDLERIGHT(CENTERHORIZ_UPPERRIGHT, EAST, MIDDLE_RIGHT),
 
     WEST_UPPERLEFT(TOP_UPPERLEFT, WEST, UPPER_LEFT),
     WEST_UPPERRIGHT(TOP_BOTTOMLEFT, WEST, UPPER_RIGHT),
     WEST_BOTTOMLEFT(BOTTOM_BOTTOMLEFT, WEST, BOTTOM_LEFT),
-    WEST_BOTTOMRIGHT(BOTTOM_UPPERLEFT, WEST, BOTTOM_RIGHT);
+    WEST_BOTTOMRIGHT(BOTTOM_UPPERLEFT, WEST, BOTTOM_RIGHT),
+    WEST_MIDDLELEFT(CENTERHORIZ_UPPERLEFT, WEST, MIDDLE_LEFT),
+    WEST_MIDDLERIGHT(CENTERHORIZ_BOTTOMLEFT, WEST, MIDDLE_RIGHT);
 
     public final float x;
     public final float y;
     public final float z;
 
-    public final EnumFacing facing;
-    public final EnumTexCorner defaultCorner;
+    private final EnumFacing facing;
+    private final EnumTexCorner defaultCorner;
 
-    EnumCoords(float x, float y, float z, EnumFacing facing, EnumTexCorner defaultCorner) {
+    EnumCoords(final float x, final float y, final float z, final EnumFacing facing, final EnumTexCorner defaultCorner) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -97,7 +100,7 @@ public enum EnumCoords {
         this.defaultCorner = defaultCorner;
     }
 
-    EnumCoords(EnumCoords enumCoords, EnumFacing facing, EnumTexCorner defaultCorner) {
+    EnumCoords(final EnumCoords enumCoords, final EnumFacing facing, final EnumTexCorner defaultCorner) {
         this.x = enumCoords.x;
         this.y = enumCoords.y;
         this.z = enumCoords.z;
@@ -107,7 +110,7 @@ public enum EnumCoords {
     }
 
     @Nullable
-    public static EnumCoords getCoords(EnumFacing facing, EnumTexCorner defaultCorner) {
+    public static EnumCoords getCoords(final EnumFacing facing, final EnumTexCorner defaultCorner) {
         for (EnumCoords coords : EnumCoords.values()) {
             if (coords.facing == facing && coords.defaultCorner == defaultCorner) {
                 return coords;

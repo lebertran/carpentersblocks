@@ -21,37 +21,33 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import tk.eichler.carpentersblocks.Constants;
 import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.text.MessageFormat;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class CoverableData extends BaseData {
-    public static final String KEY_BLOCK_STACK = "BlockStack";
+    private static final String NBT_BLOCK_STACK = "BlockStack";
 
-    public Block coveringBlock = null;
-    public int meta = 0;
+    private ItemStack itemStack;
+    private Block coveringBlock = null;
 
-    public ItemStack itemStack;
-
-    boolean hasChanged;
-
-
-    public CoverableData(@Nullable ItemStack itemStack) {
+    public CoverableData(@Nullable final ItemStack itemStack) {
         this.setItemStack(itemStack);
     }
 
     public boolean hasCover() {
-        return this.itemStack != null && this.coveringBlock != null;
+        return (this.itemStack != null) && (this.coveringBlock != null);
     }
 
-    public void setItemStack(@Nullable ItemStack itemStack) {
-        if (this.itemStack == null && itemStack == null) return;
-
-        if (this.itemStack != null && this.itemStack.isItemEqual(itemStack)) {
+    public void setItemStack(@Nullable final ItemStack itemStack) {
+        if ((this.itemStack == null) && (itemStack == null)) {
+            return;
+        }
+        if ((this.itemStack != null) && (this.itemStack.isItemEqual(itemStack))) {
             return;
         }
 
@@ -59,37 +55,35 @@ public class CoverableData extends BaseData {
 
         if (itemStack != null) {
             this.coveringBlock = BlockHelper.getBlockFromItemStack(itemStack);
-            this.meta = itemStack.getMetadata();
         }
 
-        this.hasChanged = true;
+        setChanged(true);
     }
 
-    public void fromNBT(NBTTagCompound nbt) {
-        final ItemStack itemStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(KEY_BLOCK_STACK));
+    public void fromNBT(final NBTTagCompound nbt) {
+        final ItemStack stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(NBT_BLOCK_STACK));
 
-        setItemStack(itemStack);
+        setItemStack(stack);
     }
 
-    public void toNBT(NBTTagCompound nbt) {
+    public void toNBT(final NBTTagCompound nbt) {
         if (hasCover()) {
             final NBTTagCompound itemStackCompound = new NBTTagCompound();
             itemStack.writeToNBT(itemStackCompound);
-            nbt.setTag(KEY_BLOCK_STACK, itemStackCompound);
+            nbt.setTag(NBT_BLOCK_STACK, itemStackCompound);
         }
     }
 
-    public void checkForChanges() {
-        if (this.hasChanged) {
-            onDataUpdated();
-
-            this.hasChanged = false;
-        }
+    @Nullable
+    public Block getCoveringBlock() {
+        return this.coveringBlock;
     }
 
-    /**
-     * Properties of the covering block.
-     */
+    @Nullable
+    public ItemStack getItemStack() {
+        return this.itemStack;
+    }
+
     @SuppressWarnings("deprecation")
     public int getLightValue() {
         if (this.coveringBlock == null) {
@@ -102,16 +96,13 @@ public class CoverableData extends BaseData {
     @SuppressWarnings("deprecation")
     public int getLightOpacity() {
         if (this.coveringBlock == null) {
-            return 255;
+            return Constants.DEFAULT_LIGHT_OPACITY;
         }
 
         return this.coveringBlock.getLightOpacity(null);
     }
 
-    @Override
-    public String toString() {
-        String blockName = (this.coveringBlock == null) ? "none" : this.coveringBlock.getLocalizedName();
-
-        return MessageFormat.format("CoverableData with block %s, meta %s.", blockName, this.meta);
+    public static CoverableData createInstance() {
+        return new CoverableData(null);
     }
 }

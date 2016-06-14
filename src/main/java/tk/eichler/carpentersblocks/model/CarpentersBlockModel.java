@@ -21,22 +21,16 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.common.FMLLog;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
+import tk.eichler.carpentersblocks.blocks.BlockShapeable;
+import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.ShapeableData;
-import tk.eichler.carpentersblocks.model.helper.BakedQuadHelper;
+import tk.eichler.carpentersblocks.data.EnumOrientation;
+import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.model.helper.ModelHelper;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
-import tk.eichler.carpentersblocks.util.EnumShape;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -47,84 +41,45 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class CarpentersBlockModel extends BaseModel {
 
-    private final TextureAtlasSprite base;
-    private IBakedModel coveringModel = null;
-
+    private final TextureAtlasSprite defaultSprite;
 
     public CarpentersBlockModel() {
-        this.base = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString());
+        this.defaultSprite = Minecraft.getMinecraft()
+                .getTextureMapBlocks().getAtlasSprite(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString());
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing facing, long rand) {
-        final List<BakedQuad> ret = new ArrayList<>();
+    public List<BakedQuad> getQuads(@Nullable final IBlockState state,
+                                    @Nullable final EnumFacing facing, final long rand) {
+        final List<BakedQuad> quads = new ArrayList<>();
 
-        if (state == null || ! (state instanceof IExtendedBlockState)) {
-            return ret;
+        if (state == null || !(state instanceof IExtendedBlockState)) {
+            return quads;
         }
 
-        ShapeableData data = ((IExtendedBlockState) state).getValue(DataProperty.SHAPEABLE_DATA);
-
-        if (data == null) {
-            data = ShapeableData.createInstance();
+        CoverableData coverData = ((IExtendedBlockState) state).getValue(DataProperty.COVERABLE_DATA);
+        if (coverData == null) {
+            coverData = CoverableData.createInstance();
         }
 
-        final EnumShape enumShape = data.currentShape;
-        final ItemStack coverBlock = data.itemStack;
+        final EnumShape enumShape = state.getValue(BlockShapeable.PROP_SHAPE);
+        final EnumOrientation enumOrientation = state.getValue(BlockShapeable.PROP_ORIENTATION);
 
-        if (coverBlock != null) {
-            this.coveringModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(coverBlock);
+        for (EnumFacing f : EnumFacing.values()) {
+            final TextureAtlasSprite sprite =
+                    ModelHelper.getSpriteFromItemStack(coverData.getItemStack(), state, f, rand, this.defaultSprite);
 
-            final List<BakedQuad> originalQuads = coveringModel.getQuads(state, facing, rand);
-
-            for (BakedQuad quad : originalQuads) {
-                if (facing == null) {
-                    facing = EnumFacing.UP;
-
-                    FMLLog.severe("Facing is null.");
-                }
-
-                ret.add(getBakedQuad(enumShape, facing, quad));
-            }
-        } else {
-            this.coveringModel = null;
-
-            for (EnumFacing side : EnumFacing.values()) {
-                ret.add(getBakedQuad(enumShape, side, null));
-            }
+            quads.add(CarpentersBlockModelData.getBakedQuad(enumShape, enumOrientation, f, sprite));
         }
 
-        return ret;
+        return quads;
     }
 
-    private BakedQuad getBakedQuad(EnumShape shape, EnumFacing facing, @Nullable BakedQuad bakedQuad) {
-        switch (shape) {
-            case FULL_BLOCK:
-                if (bakedQuad == null)
-                    return BakedQuadHelper.createBakedQuadFull(base, facing);
-
-                return BakedQuadHelper.createBakedQuadFull(bakedQuad);
-            case BOTTOM_SLAB:
-                if (bakedQuad == null)
-                    return BakedQuadHelper.createBakedQuadBottomSlab(base, facing);
-
-                return BakedQuadHelper.createBakedQuadBottomSlab(bakedQuad);
-            case TOP_SLAB:
-                if (bakedQuad == null)
-                    return BakedQuadHelper.createBakedQuadTopSlab(base, facing);
-                return BakedQuadHelper.createBakedQuadTopSlab(bakedQuad);
-            default:
-                assert false : "Invalid shape.";
-                return null;
-        }
-    }
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        if (coveringModel != null) {
-            return coveringModel.getParticleTexture();
-        }
-
-        return this.base;
+        //@TODO Make particle texture depend on current IBlockState.
+        // Waiting for https://github.com/MinecraftForge/MinecraftForge/issues/2939.
+        return this.defaultSprite;
     }
 }

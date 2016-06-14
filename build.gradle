@@ -26,6 +26,7 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -61,6 +62,7 @@ minecraft {
 
 dependencies {
     //deobfCompile "mcp.mobius.waila:Waila:1.7.0-B3_1.9.4"
+
 }
 
 //noinspection GroovyAssignabilityCheck

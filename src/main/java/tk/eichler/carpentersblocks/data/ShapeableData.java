@@ -20,67 +20,67 @@ package tk.eichler.carpentersblocks.data;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import tk.eichler.carpentersblocks.util.EnumShape;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.text.MessageFormat;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class ShapeableData extends CoverableData {
 
-    public static final String KEY_SHAPE = "Shape";
+    private static final String NBT_SHAPE = "Shape";
+    private static final String NBT_ORIENTATION = "Orientation";
 
-    public EnumShape currentShape;
+    private EnumShape shape;
+    private EnumOrientation orientation;
 
-    protected ShapeableData(@Nullable ItemStack itemStack, EnumShape currentShape) {
+    public ShapeableData(@Nullable final ItemStack itemStack, final EnumShape shape, final EnumOrientation orientation) {
         super(itemStack);
 
-        this.currentShape = currentShape;
+        this.shape = shape;
+        this.orientation = orientation;
+    }
+
+    @Override
+    public void fromNBT(final NBTTagCompound nbt) {
+        super.fromNBT(nbt);
+
+        setShape(EnumShape.valueOf(nbt.getString(NBT_SHAPE)));
+        setOrientation(EnumOrientation.valueOf(nbt.getString(NBT_ORIENTATION)));
+    }
+
+    @Override
+    public void toNBT(final NBTTagCompound nbt) {
+        super.toNBT(nbt);
+
+        nbt.setString(NBT_SHAPE, shape.name());
+        nbt.setString(NBT_ORIENTATION, orientation.name());
+    }
+
+    public void setShape(final EnumShape shape) {
+        if (this.shape != shape) {
+            this.shape = shape;
+            setChanged(true);
+        }
+    }
+
+    public void setOrientation(final EnumOrientation orientation) {
+        if (this.orientation != orientation) {
+            this.orientation = orientation;
+            setChanged(true);
+        }
+    }
+
+    public EnumShape getShape() {
+        return this.shape;
+    }
+
+    public EnumOrientation getOrientation() {
+        return this.orientation;
     }
 
     public static ShapeableData createInstance() {
-        return new ShapeableData(null, EnumShape.FULL_BLOCK);
+        return new ShapeableData(null, EnumShape.FULL_BLOCK, EnumOrientation.UP);
     }
 
-    public void setShape(EnumShape currentShape) {
-        if (this.currentShape == currentShape) {
-            return;
-        }
-
-        this.currentShape = currentShape;
-        this.hasChanged = true;
-    }
-
-    public boolean isShape(EnumShape enumShape) {
-        return this.currentShape == enumShape;
-    }
-
-    public void fromNBT(NBTTagCompound nbt) {
-        super.fromNBT(nbt);
-
-        EnumShape currentShape = EnumShape.FULL_BLOCK;
-        if (nbt.hasKey(KEY_SHAPE) && !nbt.getString(KEY_SHAPE).equals("")) {
-            currentShape = EnumShape.valueOf(nbt.getString(KEY_SHAPE));
-        }
-
-        setShape(currentShape);
-
-        checkForChanges();
-    }
-
-    @Override
-    public void toNBT(NBTTagCompound nbt) {
-        super.toNBT(nbt);
-
-        nbt.setString(KEY_SHAPE, this.currentShape.name());
-    }
-
-    @Override
-    public String toString() {
-        String blockName = (this.coveringBlock == null) ? "none" : this.coveringBlock.getLocalizedName();
-
-        return MessageFormat.format("ShapeableData with block %s, meta %s and shape %s.", blockName, this.meta, this.currentShape.getName());
-    }
 }

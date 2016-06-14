@@ -21,6 +21,7 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import tk.eichler.carpentersblocks.blocks.BaseBlock;
 import tk.eichler.carpentersblocks.blocks.BlockCoverable;
@@ -30,34 +31,44 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BlockHelper {
+public final class BlockHelper {
+
+    private BlockHelper() {
+        // do not instantiate
+    }
+
     @Nullable
-    public static Block getBlockFromItemStack(ItemStack stack) {
-        //noinspection ConstantConditions
-        if (stack.getItem() == null) return null;
+    @SuppressWarnings("ConstantConditions")
+    public static Block getBlockFromItemStack(final ItemStack stack) {
+        if (stack.getItem() == null) {
+            return null;
+        }
 
         return Block.getBlockFromItem(stack.getItem());
     }
 
     @SuppressWarnings("ConstantConditions")
-    public static boolean isValidCoverBlock(@Nullable ItemStack blockProp){
-        if (blockProp == null) return false;
+    public static boolean isValidCoverBlock(@Nullable final ItemStack blockProp) {
+        if (blockProp == null) {
+            return false;
+        }
 
 
         final Block block = Block.getBlockFromItem(blockProp.getItem());
-        if (block == null) return false; // Block.getBlockFromItem is nullable!
 
-        if (block instanceof BaseBlock) return false;
+        if (block == null || block instanceof BaseBlock) {
+            return false;
+        }
 
         return block.getDefaultState().getMaterial().isSolid();
 
     }
 
-    public static boolean doesRenderTransparentSide(IBlockState blockState, IBlockState borderingState) { //@TODO
+    public static boolean doesRenderTransparentSide(final IBlockState blockState, final IBlockState borderingState) { //@TODO
         return isGlassyBlock(borderingState) && isGlassyBlock(blockState);
     }
 
-    public static boolean isGlassyBlock(IBlockState blockState) {
+    public static boolean isGlassyBlock(final IBlockState blockState) {
         final Block block = blockState.getBlock();
 
         if (block == Blocks.GLASS || block == Blocks.STAINED_GLASS) {
@@ -65,12 +76,19 @@ public class BlockHelper {
         }
 
         if (block instanceof BlockCoverable) {
-            final Block coveringBlock = ((BlockCoverable) block).getCoverableData(blockState).coveringBlock;
+            final Block coveringBlock = ((BlockCoverable) block).getCoverableData(blockState).getCoveringBlock();
 
             if (coveringBlock == Blocks.GLASS || coveringBlock == Blocks.STAINED_GLASS) {
                 return true;
             }
         }
         return false;
+    }
+
+    public static ItemBlock createItemBlock(final BaseBlock block) {
+        final ItemBlock itemBlock = new ItemBlock(block);
+        itemBlock.setRegistryName(block.getRegisterName());
+        itemBlock.setUnlocalizedName(block.getUnlocalizedName());
+        return itemBlock;
     }
 }

@@ -17,57 +17,46 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
-import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
+import java.util.List;
 
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class ModelHelper {
-
+public final class ModelHelper {
     private ModelHelper() {
-        // do not instantiate this helper class
+        // do not instantiate
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
-    public static Vec3d rotate(Vec3d vec, EnumFacing side) {
-        switch (side) {
-            case UP:    return new Vec3d( vec.xCoord,  vec.yCoord,  vec.zCoord);
-            case DOWN:  return new Vec3d( vec.xCoord, -vec.yCoord, -vec.zCoord);
-            case NORTH: return new Vec3d( vec.xCoord,  vec.zCoord, -vec.yCoord);
-            case SOUTH: return new Vec3d( vec.xCoord, -vec.zCoord,  vec.yCoord);
-            case WEST:  return new Vec3d(-vec.yCoord,  vec.xCoord,  vec.zCoord);
-            case EAST:  return new Vec3d( vec.yCoord, -vec.xCoord,  vec.zCoord);
+    private static TextureAtlasSprite getSpriteWithFacing(final List<BakedQuad> quads, @Nullable final EnumFacing facing) {
+        for (BakedQuad quad : quads) {
+            if (quad.getFace() == facing) {
+                return quad.getSprite();
+            }
         }
 
-        return vec;
+        return quads.get(0).getSprite();
     }
 
-    public static int getFaceShadeColor(EnumFacing facing) {
-        float f = getFaceBrightness(facing);
-
-        int i = MathHelper.clamp_int((int) (f * 255.0F), 0, 255);
-        return -16777216 | i << 16 | i << 8 | i;
-    }
-
-    public static float getFaceBrightness(EnumFacing facing) {
-        switch (facing) {
-            case DOWN:
-                return 0.5F;
-            case UP:
-                return 1.0F;
-            case NORTH:
-            case SOUTH:
-                return 0.8F;
-            case WEST:
-            case EAST:
-                return 0.6F;
-            default:
-                return 1.0F;
+    public static TextureAtlasSprite getSpriteFromItemStack(@Nullable final ItemStack itemStack, final IBlockState state,
+                                                            @Nullable final EnumFacing facing, final long random, final TextureAtlasSprite defaultSprite) {
+        if (itemStack == null) {
+            return defaultSprite;
         }
+
+        final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemStack);
+        final List<BakedQuad> quads = model.getQuads(state, facing, random);
+
+        if (quads.size() <= 0) {
+            return defaultSprite;
+        }
+
+        return getSpriteWithFacing(quads, facing);
+
     }
 }

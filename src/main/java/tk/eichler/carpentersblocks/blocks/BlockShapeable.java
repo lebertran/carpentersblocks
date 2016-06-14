@@ -21,78 +21,143 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraft.world.World;
+import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.ShapeableData;
-import tk.eichler.carpentersblocks.util.EnumShape;
+import tk.eichler.carpentersblocks.data.EnumOrientation;
+import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.tileentities.ShapeableBlockTileEntity;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static tk.eichler.carpentersblocks.util.EnumShape.FULL_BLOCK;
+import static tk.eichler.carpentersblocks.data.EnumShape.FULL_BLOCK;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class BlockShapeable extends BlockCoverable<ShapeableData> {
+public abstract class BlockShapeable extends BlockCoverable<CoverableData> {
 
-    // Workaround property: when world loads, the collision boxes do not load properly when using IUnlistedProperty.
-    // Until there is a fix for that, we need an additional property saving the shape.
-    public static final PropertyEnum<EnumShape> PROP_SHAPE = PropertyEnum.create("shape", EnumShape.class);
+    //@todo move to api package
+    public static final PropertyEnum<EnumShape> PROP_SHAPE =
+            PropertyEnum.create("shape", EnumShape.class);
+    public static final PropertyEnum<EnumOrientation> PROP_ORIENTATION =
+            PropertyEnum.create("orientation", EnumOrientation.class);
 
     protected BlockShapeable() {
         super(Material.WOOD);
 
         this.useNeighborBrightness = true;
+
+        this.setDefaultState(getDefaultState()
+                .withProperty(PROP_SHAPE, getDefaultShape())
+                .withProperty(PROP_ORIENTATION, getDefaultOrientation()));
+    }
+
+    protected abstract void onToggleShape(World world, BlockPos pos, EnumFacing facing);
+    protected abstract void onToggleShapeAll(World world, BlockPos pos, EnumFacing facing);
+
+    protected abstract EnumShape getDefaultShape();
+    protected abstract EnumOrientation getDefaultOrientation();
+
+
+    @Override
+    public DataProperty<CoverableData> getDataProperty() {
+        return DataProperty.COVERABLE_DATA;
     }
 
     @Override
-    public DataProperty<ShapeableData> getDataProperty() {
-        return DataProperty.SHAPEABLE_DATA;
-    }
-
-    protected ShapeableData getShapeableData(IBlockState state) {
-        ShapeableData data = ((IExtendedBlockState) state).getValue(DataProperty.SHAPEABLE_DATA);
-
-        if (data == null) data = ShapeableData.createInstance();
-
-        return data;
+    public IProperty[] getProperties() {
+        return new IProperty[] {
+                PROP_ORIENTATION, PROP_SHAPE
+        };
     }
 
     @Override
-    public int getMetaFromState(IBlockState state) {
-        return state.getValue(PROP_SHAPE).ordinal();
+    protected boolean onCarpentersHammerInteract(final World world, final BlockPos pos,
+                                                 @Nullable final EnumFacing facing, final boolean isRightClick) {
+        EnumFacing newFacing = facing;
+
+        if (newFacing == null) {
+            newFacing = EnumFacing.NORTH;
+        }
+
+        if (isRightClick) {
+            onToggleShape(world, pos, newFacing);
+        } else {
+            onToggleShapeAll(world, pos, newFacing);
+        }
+
+        return true;
     }
 
     @Override
-    protected BlockStateContainer createBlockState() {
-        return new ExtendedBlockState(this, new IProperty[] { PROP_SHAPE }, new IUnlistedProperty[] { getDataProperty() });
+    public boolean isSideSolid(final IBlockState baseState, final IBlockAccess world,
+                               final BlockPos pos, final EnumFacing side) {
+        return super.isSideSolid(baseState, world, pos, side) && getShape(baseState, world, pos) == FULL_BLOCK;
+    }
+
+
+
+    public EnumShape getShape(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+        final ShapeableBlockTileEntity te = getShapeableTileEntity(world, pos);
+
+        if (te != null) {
+            return te.getShapeableData().getShape();
+        }
+
+        return state.getValue(PROP_SHAPE);
+    }
+
+    public EnumOrientation getOrientation(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+        final ShapeableBlockTileEntity te = getShapeableTileEntity(world, pos);
+
+        if (te != null) {
+            return te.getShapeableData().getOrientation();
+        }
+
+        return state.getValue(PROP_ORIENTATION);
+    }
+
+    public void setShapeData(final World world, final BlockPos pos,
+                             @Nullable final EnumShape shape, @Nullable final EnumOrientation orientation) {
+        final IBlockState currentState = world.getBlockState(pos);
+        EnumShape newShape = shape;
+        EnumOrientation newOrientation = orientation;
+
+        if (newShape == null) {
+            newShape = getShape(currentState, world, pos);
+        }
+
+        if (newOrientation == null) {
+            newOrientation = getOrientation(currentState, world, pos);
+        }
+
+        final ShapeableBlockTileEntity te = getShapeableTileEntity(world, pos);
+        if (te != null) {
+            te.setShapeableData(newShape, newOrientation);
+        }
+    }
+
+    @Nullable
+    public ShapeableBlockTileEntity getShapeableTileEntity(final IBlockAccess world, final BlockPos pos) {
+        final TileEntity tileEntity = world.getTileEntity(pos);
+
+        if (tileEntity instanceof ShapeableBlockTileEntity) {
+            return (ShapeableBlockTileEntity) tileEntity;
+        }
+
+        return null;
     }
 
     @Override
-    public boolean isVisuallyOpaque() {
-        return false;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean isOpaqueCube(IBlockState state) {
-        return false;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean isFullCube(IBlockState state) {
-        return false;
-    }
-
-    @Override
-    public boolean isSideSolid(IBlockState baseState, IBlockAccess world, BlockPos pos, EnumFacing side) {
-        return getShapeableData(baseState).isShape(FULL_BLOCK) && getShapeableData(baseState).hasCover();
+    public IBlockState getExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+        return super.getExtendedState(state, world, pos)
+                .withProperty(PROP_SHAPE, getShape(state, world, pos))
+                .withProperty(PROP_ORIENTATION, getOrientation(state, world, pos));
     }
 }

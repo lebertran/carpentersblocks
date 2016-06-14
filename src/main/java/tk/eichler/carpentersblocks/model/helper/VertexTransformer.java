@@ -15,19 +15,8 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.registry;
+package tk.eichler.carpentersblocks.model.helper;
 
-public interface BaseRegistry {
-
-    default void onPreInit() {
-    }
-
-    default void onInit() {
-    }
-
-    /**
-     * Override this method to return true if the registry has its own EventHandler methods
-     * @return boolean
-     */
-    boolean receivesEvents();
+interface VertexTransformer {
+    VertexBuilder transform(VertexBuilder builder);
 }

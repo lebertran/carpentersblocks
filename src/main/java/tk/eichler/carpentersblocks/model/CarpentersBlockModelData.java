@@ -17,160 +17,115 @@
 
 package tk.eichler.carpentersblocks.model;
 
-import com.google.common.primitives.Ints;
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraftforge.fml.common.FMLLog;
+import net.minecraft.util.EnumFacing;
+import tk.eichler.carpentersblocks.data.EnumOrientation;
+import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.model.helper.BakedQuadBuilder;
+import tk.eichler.carpentersblocks.model.helper.Transformation;
+import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
 import tk.eichler.carpentersblocks.model.helper.VertexBuilder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.text.MessageFormat;
 
-import static net.minecraft.util.EnumFacing.*;
+import static net.minecraft.util.EnumFacing.NORTH;
+import static net.minecraft.util.EnumFacing.UP;
 import static tk.eichler.carpentersblocks.model.helper.EnumCoords.*;
 import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
+import static tk.eichler.carpentersblocks.model.helper.TransformationHelper.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CarpentersBlockModelData {
+public final class CarpentersBlockModelData {
 
-    public static final VertexBuilder[] VERTICES_TOP = new VertexBuilder[] {
-            new VertexBuilder(UP).withCoords(TOP_UPPERLEFT).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(UP).withCoords(TOP_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(UP).withCoords(TOP_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(UP).withCoords(TOP_UPPERRIGHT).withTextureMapping(UPPER_RIGHT),
+    private CarpentersBlockModelData() {
+        // do not instantiate
+    }
+
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_SIDE = new VertexBuilder[] {
+            new VertexBuilder(NORTH).withCoords(NORTH_MIDDLELEFT).withTextureMapping(MIDDLE_LEFT),
+            new VertexBuilder(NORTH).withCoords(NORTH_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
+            new VertexBuilder(NORTH).withCoords(NORTH_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
+            new VertexBuilder(NORTH).withCoords(NORTH_MIDDLERIGHT).withTextureMapping(MIDDLE_RIGHT)
     };
 
-    public static final VertexBuilder[] VERTICES_DOWN = new VertexBuilder[] {
-            new VertexBuilder(DOWN).withCoords(BOTTOM_UPPERLEFT).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(DOWN).withCoords(BOTTOM_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(DOWN).withCoords(BOTTOM_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(DOWN).withCoords(BOTTOM_UPPERRIGHT).withTextureMapping(UPPER_RIGHT),
-    };
-
-    public static final VertexBuilder[] VERTICES_TOP_SLAB_DOWN = new VertexBuilder[] {
-            new VertexBuilder(DOWN).withCoords(CENTERHORIZ_UPPERLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(DOWN).withCoords(CENTERHORIZ_UPPERRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(DOWN).withCoords(CENTERHORIZ_BOTTOMRIGHT).withTextureMapping(UPPER_RIGHT),
-            new VertexBuilder(DOWN).withCoords(CENTERHORIZ_BOTTOMLEFT).withTextureMapping(UPPER_LEFT),
-    };
-
-
-    public static final VertexBuilder[] VERTICES_SLAB_UP = new VertexBuilder[] {
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_TOP = new VertexBuilder[] {
             new VertexBuilder(UP).withCoords(0, 0.5F, 0).withTextureMapping(UPPER_LEFT),
             new VertexBuilder(UP).withCoords(0, 0.5F, 1).withTextureMapping(BOTTOM_LEFT),
             new VertexBuilder(UP).withCoords(1, 0.5F, 1).withTextureMapping(BOTTOM_RIGHT),
             new VertexBuilder(UP).withCoords(1, 0.5F, 0).withTextureMapping(UPPER_RIGHT),
     };
 
-    public static final VertexBuilder[] VERTICES_SLAB_DOWN = new VertexBuilder[] {
-            new VertexBuilder(DOWN).withCoords(0, 0, 1).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(DOWN).withCoords(0, 0, 0).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(DOWN).withCoords(1, 0, 0).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(DOWN).withCoords(1, 0, 1).withTextureMapping(UPPER_RIGHT),
-    };
 
-    public static final VertexBuilder[] VERTICES_SLAB_NORTH = new VertexBuilder[] {
-            new VertexBuilder(NORTH).withCoords(1, 0.5F, 0).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(NORTH).withCoords(1, 0, 0).withTextureMapping(MIDDLE_LEFT),
-            new VertexBuilder(NORTH).withCoords(0, 0, 0).withTextureMapping(MIDDLE_RIGHT),
-            new VertexBuilder(NORTH).withCoords(0, 0.5F, 0).withTextureMapping(UPPER_RIGHT)
-    };
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_NORTH =
+            VERTICES_BOTTOM_SLAB_SIDE;
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_WEST =
+            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_270);
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_SOUTH =
+            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_180);
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_EAST =
+            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_90);
+    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_UP = VERTICES_BOTTOM_SLAB_TOP;
 
-    public static final VertexBuilder[] VERTICES_SLAB_SOUTH = new VertexBuilder[] {
-            new VertexBuilder(SOUTH).withCoords(0, 0.5F, 1).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(SOUTH).withCoords(0, 0, 1).withTextureMapping(MIDDLE_LEFT),
-            new VertexBuilder(SOUTH).withCoords(1, 0, 1).withTextureMapping(MIDDLE_RIGHT),
-            new VertexBuilder(SOUTH).withCoords(1, 0.5F, 1).withTextureMapping(UPPER_RIGHT)
-    };
+    private static VertexBuilder[] getDefaultSlabVertices(final EnumFacing facing) {
+        switch (facing) {
+            case DOWN:
+                return BaseModelData.VERTICES_FULL_DOWN;
+            case UP:
+                return VERTICES_BOTTOM_SLAB_UP;
+            case NORTH:
+                return VERTICES_BOTTOM_SLAB_NORTH;
+            case SOUTH:
+                return VERTICES_BOTTOM_SLAB_SOUTH;
+            case WEST:
+                return VERTICES_BOTTOM_SLAB_WEST;
+            case EAST:
+                return VERTICES_BOTTOM_SLAB_EAST;
+            default:
+                throw new UnsupportedOperationException("Invalid facing");
+        }
+    }
 
-    public static final VertexBuilder[] VERTICES_SLAB_EAST = new VertexBuilder[] {
-            new VertexBuilder(EAST).withCoords(0, 0.5F, 0).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(EAST).withCoords(0, 0, 0).withTextureMapping(MIDDLE_LEFT),
-            new VertexBuilder(EAST).withCoords(0, 0, 1).withTextureMapping(MIDDLE_RIGHT),
-            new VertexBuilder(EAST).withCoords(0, 0.5F, 1).withTextureMapping(UPPER_RIGHT)
-    };
+    private static Transformation[] getSlabTransformations(final EnumOrientation orientation) {
+        switch (orientation) {
+            case UP:
+                return TransformationHelper.get(TRANSLATE_Y_HALF);
+            case DOWN:
+                return TransformationHelper.NO_TRANSFORMS;
+            case SOUTH:
+                return TransformationHelper.get(ROTATE_UP);
+            case WEST:
+                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_90);
+            case NORTH:
+                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_180);
+            case EAST:
+                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_270);
+            default:
+                return TransformationHelper.NO_TRANSFORMS;
+        }
+    }
 
-    public static final VertexBuilder[] VERTICES_SLAB_WEST = new VertexBuilder[] {
-            new VertexBuilder(WEST).withCoords(1, 0.5F, 1).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(WEST).withCoords(1, 0, 1).withTextureMapping(MIDDLE_LEFT),
-            new VertexBuilder(WEST).withCoords(1, 0, 0).withTextureMapping(MIDDLE_RIGHT),
-            new VertexBuilder(WEST).withCoords(1, 0.5F, 0).withTextureMapping(UPPER_RIGHT)
-    };
-    
-    
-    
+    static BakedQuad getBakedQuad(final EnumShape shape, final EnumOrientation orientation,
+                                  final EnumFacing facing, final TextureAtlasSprite sprite) {
+        final VertexBuilder[] vertices;
+        final Transformation[] transforms;
 
-    public static final VertexBuilder[] VERTICES_FULL_NORTH = new VertexBuilder[] {
-            new VertexBuilder(NORTH).withCoords(1, 1, 0).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(NORTH).withCoords(1, 0, 0).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(NORTH).withCoords(0, 0, 0).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(NORTH).withCoords(0, 1, 0).withTextureMapping(UPPER_RIGHT)
-    };
+        switch (shape) {
+            case FULL_BLOCK:
+                vertices = BaseModelData.getFullVertices(facing);
+                transforms = NO_TRANSFORMS;
+                break;
+            case SLAB:
+                vertices = getDefaultSlabVertices(facing);
+                transforms = getSlabTransformations(orientation);
+                break;
+            default:
+                throw new IllegalArgumentException(MessageFormat.format("Invalid shape {0} in CarpentersBlockModel.", shape));
+        }
 
-    public static final VertexBuilder[] VERTICES_FULL_SOUTH = new VertexBuilder[] {
-            new VertexBuilder(SOUTH).withCoords(0, 1, 1).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(SOUTH).withCoords(0, 0, 1).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(SOUTH).withCoords(1, 0, 1).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(SOUTH).withCoords(1, 1, 1).withTextureMapping(UPPER_RIGHT)
-    };
-
-    public static final VertexBuilder[] VERTICES_FULL_EAST = new VertexBuilder[] {
-            new VertexBuilder(EAST).withCoords(0, 1, 0).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(EAST).withCoords(0, 0, 0).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(EAST).withCoords(0, 0, 1).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(EAST).withCoords(0, 1, 1).withTextureMapping(UPPER_RIGHT)
-    };
-
-    public static final VertexBuilder[] VERTICES_FULL_WEST = new VertexBuilder[] {
-            new VertexBuilder(WEST).withCoords(1, 1, 1).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(WEST).withCoords(1, 0, 1).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(WEST).withCoords(1, 0, 0).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(WEST).withCoords(1, 1, 0).withTextureMapping(UPPER_RIGHT)
-    };
-
-
-
-    //Bitte nicht löschen!
-    /*public static final VertexBuilder[] VERTICES_SLAB_UP = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.UP).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.UP).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-            new VertexBuilder(EnumFacing.UP).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.UPPER_LEFT),
-            new VertexBuilder(EnumFacing.UP).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.UPPER_RIGHT),
-    };
-
-    public static final VertexBuilder[] VERTICES_SLAB_DOWN = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.DOWN).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.UPPER_LEFT),
-            new VertexBuilder(EnumFacing.DOWN).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.UPPER_RIGHT),
-            new VertexBuilder(EnumFacing.DOWN).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.DOWN).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-    };
-    
-    public static final VertexBuilder[] VERTICES_SLAB_WEST = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.WEST).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
-            new VertexBuilder(EnumFacing.WEST).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.WEST).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-            new VertexBuilder(EnumFacing.WEST).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
-    };
-
-    public static final VertexBuilder[] VERTICES_SLAB_EAST = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.EAST).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
-            new VertexBuilder(EnumFacing.EAST).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.EAST).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-            new VertexBuilder(EnumFacing.EAST).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
-    };
-
-    public static final VertexBuilder[] VERTICES_SLAB_NORTH = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
-            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
-    };
-
-    public static final VertexBuilder[] VERTICES_SLAB_SOUTH = new VertexBuilder[] {
-            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
-            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
-            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
-            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
-    };*/
-
+        return new BakedQuadBuilder(vertices, facing, sprite, transforms).build();
+    }
 }

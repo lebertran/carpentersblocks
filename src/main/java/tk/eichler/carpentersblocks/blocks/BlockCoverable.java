@@ -19,50 +19,79 @@ package tk.eichler.carpentersblocks.blocks;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.tileentities.ShapeableBlockTileEntity;
+import tk.eichler.carpentersblocks.tileentities.CoverableBlockTileEntity;
 import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A base block that can handle cover and state changes.
- */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class BlockCoverable<T extends CoverableData> extends BaseBlock {
 
-
-    protected BlockCoverable(Material material) {
+    protected BlockCoverable(final Material material) {
         super(material);
     }
 
+    @Override
+    public void onRightClickEvent(final PlayerInteractEvent.RightClickBlock event) {
+        final EntityPlayer player = event.getEntityPlayer();
+        final ItemStack heldItem = player.getHeldItemMainhand();
+        final EnumFacing facing;
 
-    public abstract DataProperty<T> getDataProperty();
+        if (event.getFace() == null) {
+            facing = EnumFacing.NORTH;
+        } else {
+            facing = event.getFace();
+        }
+
+        if (heldItem == null) {
+            return;
+        }
+
+        if (heldItem.getItem() == Items.STICK) { //@TODO replace
+            onCarpentersHammerInteract(event.getWorld(), event.getPos(), facing, true);
+            event.setCanceled(true);
+            return;
+        }
+
+        if (BlockHelper.isValidCoverBlock(heldItem)) {
+            if (onCarpenterChangeBlock(event.getWorld(), event.getPos(), heldItem, facing)) {
+                event.setCanceled(true);
+            }
+        }
+    }
 
     @Override
-    public void onRightClickEvent(PlayerInteractEvent.RightClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
+    public void onLeftClickEvent(final PlayerInteractEvent.LeftClickBlock event) {
+        if (event.isCanceled() || event.getHand() == EnumHand.OFF_HAND) {
+            return;
+        }
+
+        event.setCanceled(false);
+        event.setUseBlock(Event.Result.ALLOW);
+        event.setUseItem(Event.Result.DENY);
+    }
+    @Override
+    public void onBlockClicked(final World worldIn, final BlockPos pos, final EntityPlayer player) {
+        super.onBlockClicked(worldIn, pos, player);
+
         final ItemStack heldItem = player.getHeldItemMainhand();
 
         if (heldItem == null) {
@@ -70,87 +99,53 @@ public abstract class BlockCoverable<T extends CoverableData> extends BaseBlock 
         }
 
         if (heldItem.getItem() == Items.STICK) { //@TODO replace
+
             if (player.isSneaking()) {
-                if( onCarpentersHammerRemove(event.getWorld(), event.getPos()) ) {
-                    event.setUseItem(Event.Result.ALLOW);
-                }
-                event.setCanceled(true);
-                return;
-            }
+                onCarpentersHammerRemove(worldIn, pos);
 
-            onCarpentersHammerInteract(event.getWorld(), event.getPos(), event.getFace());
-            event.setCanceled(true);
-            return;
-        }
-
-        if (BlockHelper.isValidCoverBlock(heldItem)) {
-            if ( onCarpenterChangeBlock(event.getWorld(), event.getPos(), heldItem, event.getFace()) ) {
-                event.setCanceled(true);
+            } else {
+                onCarpentersHammerInteract(worldIn, pos, player.getHorizontalFacing(), false);
             }
         }
     }
 
-    @Override
-    public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ItemStack heldItem = player.getHeldItemMainhand();
-
-        if (heldItem == null) {
-            return;
-        }
-
-        if (heldItem.getItem() == Items.STICK && player.isSneaking()) { //@TODO replace
-            if( onCarpentersHammerRemove(event.getWorld(), event.getPos()) ) {
-                event.setUseItem(Event.Result.ALLOW);
-            }
-            event.setCanceled(true);
-        }
-    }
-
-
-    private boolean onCarpenterChangeBlock(World world, BlockPos pos, ItemStack heldItem, EnumFacing facing) {
-        final ShapeableBlockTileEntity cbte = getCarpentersBlockTileEntity(world, pos);
+    private boolean onCarpenterChangeBlock(final World world,
+                                           final BlockPos pos,
+                                           final ItemStack heldItem,
+                                           final EnumFacing facing) {
+        final CoverableBlockTileEntity cbte = getTileEntity(world, pos);
 
         return cbte != null && cbte.trySetBlockStack(heldItem);
     }
 
-    private boolean onCarpentersHammerInteract(World world, BlockPos pos, EnumFacing facing) {
-        final ShapeableBlockTileEntity cbte = getCarpentersBlockTileEntity(world, pos);
-
-        return cbte != null && cbte.setShape(facing);
+    protected boolean onCarpentersHammerInteract(final World world,
+                                                 final BlockPos pos,
+                                                 final EnumFacing facing,
+                                                 final boolean isRightClick) {
+        return false;
     }
 
-    private boolean onCarpentersHammerRemove(IBlockAccess world, BlockPos pos) {
-        final ShapeableBlockTileEntity cbte = getCarpentersBlockTileEntity(world, pos);
+    private boolean onCarpentersHammerRemove(final IBlockAccess world, final BlockPos pos) {
+        final CoverableBlockTileEntity cbte = getTileEntity(world, pos);
 
         return cbte != null && cbte.removeBlockStack();
     }
 
 
-
-    @Override
-    public TileEntity createNewTileEntity(World worldIn, int meta) {
-        return new ShapeableBlockTileEntity();
-    }
-
-    @Override
-    public void registerTileEntity() {
-        GameRegistry.registerTileEntity(ShapeableBlockTileEntity.class, getRegisterName() + ":tile_entity");
-    }
+    public abstract DataProperty<T> getDataProperty();
 
     @Nullable
-    private ShapeableBlockTileEntity getCarpentersBlockTileEntity(IBlockAccess world, BlockPos pos) {
+    protected CoverableBlockTileEntity getTileEntity(final IBlockAccess world, final BlockPos pos) {
         final TileEntity te = world.getTileEntity(pos);
 
-        if (! (te instanceof ShapeableBlockTileEntity)) {
+        if (!(te instanceof CoverableBlockTileEntity)) {
             return null;
         }
 
-        return (ShapeableBlockTileEntity) te;
+        return (CoverableBlockTileEntity) te;
     }
 
-
-    public CoverableData getCoverableData(IBlockState state) {
+    public CoverableData getCoverableData(final IBlockState state) {
         final CoverableData data = ((IExtendedBlockState) state).getValue(getDataProperty());
 
         if (data == null) {
@@ -161,18 +156,31 @@ public abstract class BlockCoverable<T extends CoverableData> extends BaseBlock 
     }
 
     @Override
-    public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-        final ShapeableBlockTileEntity tileEntity = getCarpentersBlockTileEntity(world, pos);
+    public IBlockState getExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+        final CoverableBlockTileEntity tileEntity = getTileEntity(world, pos);
 
-        return (tileEntity != null && tileEntity.getState() != null) ? tileEntity.getState() : state;
+        IExtendedBlockState newState;
+
+        if ((tileEntity != null) && (tileEntity.getState() != null)) {
+            newState = tileEntity.getState();
+        } else {
+            newState = (IExtendedBlockState) state;
+        }
+
+        if (newState.getValue(DataProperty.COVERABLE_DATA) == null) {
+            newState = newState.withProperty(DataProperty.COVERABLE_DATA, CoverableData.createInstance());
+        }
+
+        return newState;
     }
 
     @Override
-    protected BlockStateContainer createBlockState() {
-        return new ExtendedBlockState(this, new IProperty[] {}, new IUnlistedProperty[] {
-                getDataProperty()
-        });
+    public IUnlistedProperty[] getUnlistedProperties() {
+        return new IUnlistedProperty[] {
+                DataProperty.COVERABLE_DATA
+        };
     }
+
 
     /**
      * Default rendering implementations
@@ -180,17 +188,18 @@ public abstract class BlockCoverable<T extends CoverableData> extends BaseBlock 
      * Normally, a carpenter's block is partly transparent.
      */
     @Override
-    public int getLightOpacity(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public int getLightOpacity(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
         return getCoverableData(state).getLightOpacity();
     }
 
     @Override
-    public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+    public int getLightValue(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
         return getCoverableData(state).getLightValue();
     }
 
     @Override
-    public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.CUTOUT_MIPPED;
+    public boolean isSideSolid(final IBlockState base_state, final IBlockAccess world,
+                               final BlockPos pos, final EnumFacing side) {
+        return getCoverableData(base_state).hasCover();
     }
 }

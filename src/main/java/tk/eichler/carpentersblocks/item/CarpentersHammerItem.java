@@ -15,28 +15,10 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.util;
+package tk.eichler.carpentersblocks.item;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.item.Item;
 
-import javax.annotation.Nonnull;
-
-// State enum
-public enum EnumShape implements IStringSerializable {
-    FULL_BLOCK("full_block"),
-    TOP_SLAB("top_slab"),
-    BOTTOM_SLAB("bottom_slab");
-
-    private final String name;
-
-    EnumShape(String name) {
-        this.name = name;
-    }
-
-    @Override
-    @Nonnull
-    public String getName() {
-        return name;
-    }
+public class CarpentersHammerItem extends Item {
 
 }

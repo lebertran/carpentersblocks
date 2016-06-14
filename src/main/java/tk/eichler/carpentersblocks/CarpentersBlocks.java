@@ -17,36 +17,49 @@
 
 package tk.eichler.carpentersblocks;
 
-import net.minecraft.client.Minecraft;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.input.Mouse;
 import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
 import tk.eichler.carpentersblocks.proxy.CommonProxy;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+/**
+ * Mod entry point.
+ */
 @SuppressWarnings("unused")
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @Mod(modid = Constants.MOD_ID, name = Constants.MOD_NAME, version = Constants.VERSION)
-public class CarpentersBlocks {
+public final class CarpentersBlocks {
 
-    @Mod.Instance(Constants.MOD_ID)
-    public static CarpentersBlocks INSTANCE;
+    /**
+     * Holds a mod instance.
+     */
+    @Instance(Constants.MOD_ID)
+    public static CarpentersBlocks instance;
 
+    /**
+     * Holds a proxy depending on the current side.
+     */
     @SidedProxy(serverSide = Constants.SERVER_PROXY, clientSide = Constants.CLIENT_PROXY)
     public static CommonProxy proxy;
 
-    public static CreativeTabs creativeTabs = new CreativeTabs(Constants.MOD_ID) {
+    /**
+     * Default creative tab.
+     */
+    public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(Constants.MOD_ID) {
         @Override
-        @Nonnull
         @SideOnly(Side.CLIENT)
         public Item getTabIconItem() {
             return BlockCarpentersBlock.INSTANCE.getItemBlock();
@@ -54,18 +67,34 @@ public class CarpentersBlocks {
     };
 
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
+    /**
+     * Triggers preInit, refer to {@link FMLPreInitializationEvent}.
+     *
+     * @param event FMLPreInitializationEvent.
+     */
+    @EventHandler
+    public void preInit(final FMLPreInitializationEvent event) {
+        proxy.registerRegistries();
         proxy.preInit(event);
     }
 
-    @Mod.EventHandler
-    public void init(FMLInitializationEvent event) {
+    /**
+     * Triggers init, refer to {@link FMLInitializationEvent}.
+     *
+     * @param event FMLInitializationEvent.
+     */
+    @EventHandler
+    public void init(final FMLInitializationEvent event) {
         proxy.init(event);
     }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event) {
+    /**
+     * Triggers postInit, refer to {@link FMLPostInitializationEvent}.
+     *
+     * @param event FMLPostInitializationEvent.
+     */
+    @EventHandler
+    public void postInit(final FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
 }

@@ -20,7 +20,6 @@ package tk.eichler.carpentersblocks.model;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 import javax.annotation.Nonnull;
 
@@ -37,10 +36,13 @@ public abstract class BaseModel implements IBakedModel {
     }
 
     @Override
-    public boolean isBuiltInRenderer() { return false; }
+    public boolean isBuiltInRenderer() {
+        return false;
+    }
 
     @Override
     @Nonnull
+    @SuppressWarnings("deprecation")
     public ItemCameraTransforms getItemCameraTransforms() {
         return ItemCameraTransforms.DEFAULT;
     }

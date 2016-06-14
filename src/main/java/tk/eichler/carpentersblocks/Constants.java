@@ -17,7 +17,7 @@
 
 package tk.eichler.carpentersblocks;
 
-public class Constants {
+public final class Constants {
 
     public static final String MOD_ID = "carpentersblocks";
     public static final String MOD_NAME = "Carpenter's Blocks";
@@ -33,6 +33,11 @@ public class Constants {
      */
     public static final String SERVER_PROXY = "tk.eichler.carpentersblocks.proxy.CommonProxy";
     public static final String CLIENT_PROXY = "tk.eichler.carpentersblocks.proxy.ClientProxy";
+
+    /**
+     * Defaults
+     */
+    public static final int DEFAULT_LIGHT_OPACITY = 255;
 
     private Constants() {
         // do not create object

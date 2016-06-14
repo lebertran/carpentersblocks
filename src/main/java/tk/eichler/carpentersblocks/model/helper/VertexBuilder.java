@@ -17,58 +17,48 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
-import com.google.common.primitives.Ints;
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.FMLLog;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.vecmath.Vector4f;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class VertexBuilder {
-    public static final int[] EMPTY = new int[28];
 
     private float x;
     private float y;
     private float z;
 
-    public EnumTexCorner corner;
+    private EnumTexCorner corner;
 
-    private final int color;
     private final EnumFacing enumFacing;
 
-    public VertexBuilder(EnumFacing facing) {
-        this.color = ModelHelper.getFaceShadeColor(facing);
+    public VertexBuilder(final EnumFacing facing) {
         this.enumFacing = facing;
     }
 
-    public VertexBuilder withNewFacing(EnumFacing newFacing) {
-        if (this.enumFacing == newFacing) {
-            return this.clone();
-        }
-
-        final EnumCoords coords = EnumCoords.getCoords(newFacing, this.corner);
-
-        if (coords == null) {
-            throw new UnsupportedOperationException("Invalid facing or corner.");
-        }
-
-        return new VertexBuilder(newFacing).withCoords(coords).withTextureMapping(this.corner);
+    public VertexBuilder() {
+        this.enumFacing = EnumFacing.UP;
     }
 
-    public VertexBuilder withCoords(Vec3d vec3d) {
-        this.x = (float) vec3d.xCoord;
-        this.y = (float) vec3d.yCoord;
-        this.z = (float) vec3d.zCoord;
-
-        return this;
+    public EnumTexCorner getCorner() {
+        return this.corner;
     }
 
-    public VertexBuilder withCoords(float x, float y, float z) {
+    public Vector4f getVector4f() {
+        return new Vector4f(x, y, z, 1);
+    }
+
+    public VertexBuilder withTransformation(final Transformation transformation) {
+        Vector4f newCoords = this.getVector4f();
+        transformation.get().getMatrix().transform(newCoords);
+
+        return this.clone().withCoords(newCoords).withTextureMapping(this.corner);
+    }
+
+    public VertexBuilder withCoords(final float x, final float y, final float z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -76,7 +66,15 @@ public class VertexBuilder {
         return this;
     }
 
-    public VertexBuilder withCoords(EnumCoords enumCoords) {
+    public VertexBuilder withCoords(final Vector4f vector4f) {
+        this.x = vector4f.getX();
+        this.y = vector4f.getY();
+        this.z = vector4f.getZ();
+
+        return this;
+    }
+
+    public VertexBuilder withCoords(final EnumCoords enumCoords) {
         this.x = enumCoords.x;
         this.y = enumCoords.y;
         this.z = enumCoords.z;
@@ -84,41 +82,15 @@ public class VertexBuilder {
         return this;
     }
 
-    public VertexBuilder withTextureMapping(EnumTexCorner corner) {
-        this.corner = corner;
+    public VertexBuilder withTextureMapping(final EnumTexCorner texCorner) {
+        this.corner = texCorner;
 
         return this;
-    }
-
-    public VertexBuilder addY(float y) {
-        return clone().withCoords(this.x, this.y + y, this.z);
-    }
-
-    public int[] toIntArray(TextureAtlasSprite sprite) {
-        return new int[]{
-                Float.floatToRawIntBits(x),
-                Float.floatToRawIntBits(y),
-                Float.floatToRawIntBits(z),
-                color,
-                Float.floatToRawIntBits(sprite.getInterpolatedU(corner.x)),
-                Float.floatToRawIntBits(sprite.getInterpolatedV(corner.y)),
-                0
-        };
     }
 
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
     public VertexBuilder clone() {
         return new VertexBuilder(this.enumFacing).withCoords(this.x, this.y, this.z).withTextureMapping(corner);
-    }
-
-    public static VertexBuilder[] transformY(VertexBuilder[] vertices, float length) { //@todo clean code
-        final VertexBuilder[] result = new VertexBuilder[vertices.length];
-
-        for (int i = 0; i < vertices.length; i++) {
-            result[i] = vertices[i].addY(length);
-        }
-
-        return result;
     }
 }

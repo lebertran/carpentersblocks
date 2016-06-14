@@ -15,30 +15,41 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.data;
+package tk.eichler.carpentersblocks.registry;
 
+import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import tk.eichler.carpentersblocks.util.EnumShape;
+import net.minecraftforge.common.MinecraftForge;
+import tk.eichler.carpentersblocks.eventhandler.EventHandler;
+import tk.eichler.carpentersblocks.eventhandler.InteractionHandler;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class FacingData extends ShapeableData {
-    public static final String KEY_FACING = "Facing";
+public class EventHandlerRegistry implements BaseRegistry {
 
-    public EnumFacing currentFacing;
+    private static final List<EventHandler> EVENT_HANDLERS = ImmutableList.of(InteractionHandler.getInstance());
 
-    public FacingData(@Nullable ItemStack itemStack, EnumShape currentShape, EnumFacing facing) {
-        super(itemStack, currentShape);
+    private static EventHandlerRegistry instance;
 
-        this.currentFacing = facing;
+    public static EventHandlerRegistry getInstance() {
+        if (instance == null) {
+            instance = new EventHandlerRegistry();
+        }
+
+        return instance;
     }
 
-    public static FacingData createInstance() {
-        return new FacingData(null, EnumShape.FULL_BLOCK, EnumFacing.NORTH);
+    @Override
+    public boolean receivesEvents() {
+        return false;
+    }
+
+    @Override
+    public void onInit() {
+        EVENT_HANDLERS.stream()
+                .forEach(MinecraftForge.EVENT_BUS::register);
     }
 }

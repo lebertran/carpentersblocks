@@ -18,27 +18,27 @@
 package tk.eichler.carpentersblocks.model.helper;
 
 public enum EnumTexCorner {
-    //Bitte nicht löschen!
-    /*UPPER_LEFT(0, 16),
-    UPPER_RIGHT(16, 16),
-    MIDDLE_LEFT(0, 8),
-    MIDDLE_RIGHT(16, 8),
-    BOTTOM_LEFT(0, 0),
-    BOTTOM_RIGHT(16, 0);*/
-
     UPPER_LEFT(0, 0),
     UPPER_RIGHT(16, 0),
     MIDDLE_LEFT(0, 8),
     MIDDLE_RIGHT(16, 8),
-    CENTER(8,8),
+    CENTER(8, 8),
     BOTTOM_LEFT(0, 16),
     BOTTOM_RIGHT(16, 16);
 
-    final int x;
-    final int y;
+    private final int u;
+    private final int v;
 
-    EnumTexCorner(int x, int y) {
-        this.x = x;
-        this.y = y;
+    EnumTexCorner(final int u, final int v) {
+        this.u = u;
+        this.v = v;
+    }
+
+    public int getU() {
+        return this.u;
+    }
+
+    public int getV() {
+        return this.v;
     }
 }

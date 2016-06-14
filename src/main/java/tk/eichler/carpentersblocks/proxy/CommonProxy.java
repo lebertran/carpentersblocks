@@ -17,22 +17,47 @@
 
 package tk.eichler.carpentersblocks.proxy;
 
+import com.google.common.collect.ImmutableList;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import tk.eichler.carpentersblocks.registry.BaseRegistry;
+import tk.eichler.carpentersblocks.registry.BlockRegistry;
+import tk.eichler.carpentersblocks.registry.EventHandlerRegistry;
 
+import java.util.List;
+
+/**
+ * Initialization proxy, run on both client and server.
+ */
 public class CommonProxy {
 
-    public void preInit(FMLPreInitializationEvent event) {
-        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
-            registry.onPreInit();
+    /**
+     * Registries, that run on both logical client and server.
+     */
+    private static final List<BaseRegistry> COMMON_REGISTRIES = ImmutableList.of(
+            BlockRegistry.INSTANCE,
+            EventHandlerRegistry.getInstance()
+    );
+
+    /**
+     * Register all registries that have custom events in MinecraftForge's EventBus.
+     */
+    public void registerRegistries() {
+        COMMON_REGISTRIES.stream()
+                .filter(BaseRegistry::receivesEvents)
+                .forEach(MinecraftForge.EVENT_BUS::register);
     }
 
-    public void init(FMLInitializationEvent event) {
-        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
-            registry.onInit();
+    public void preInit(final FMLPreInitializationEvent event) {
+        COMMON_REGISTRIES.forEach(BaseRegistry::onPreInit);
     }
 
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void init(final FMLInitializationEvent event) {
+        COMMON_REGISTRIES.forEach(BaseRegistry::onInit);
+    }
+
+    public void postInit(final FMLPostInitializationEvent event) {
+    }
 }

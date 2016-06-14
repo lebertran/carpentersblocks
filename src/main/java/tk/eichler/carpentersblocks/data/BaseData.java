@@ -25,16 +25,27 @@ import java.util.Set;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-abstract class BaseData {
+public abstract class BaseData {
     private final Set<DataUpdateListener> listeners = new HashSet<>();
+    private boolean hasChanged;
 
-    public void addUpdateListener(DataUpdateListener listener) {
+    public void setChanged(final boolean changed) {
+        this.hasChanged = changed;
+    }
+
+    public void addUpdateListener(final DataUpdateListener listener) {
         listeners.add(listener);
     }
 
-    void onDataUpdated() {
-        for (DataUpdateListener listener : this.listeners) {
-            listener.onDataUpdate();
+    private void onDataUpdated() {
+        this.listeners.forEach(DataUpdateListener::onDataUpdate);
+    }
+
+    public void checkForChanges() {
+        if (this.hasChanged) {
+            onDataUpdated();
+
+            this.setChanged(false);
         }
     }
 }

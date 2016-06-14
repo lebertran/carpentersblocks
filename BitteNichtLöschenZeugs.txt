@@ -1,0 +1,51 @@
+// CarpentersBlockModelData.java
+//Bitte nicht löschen!
+    /*public static final VertexBuilder[] VERTICES_SLAB_UP = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.UP).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.UP).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+            new VertexBuilder(EnumFacing.UP).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.UPPER_LEFT),
+            new VertexBuilder(EnumFacing.UP).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.UPPER_RIGHT),
+    };
+
+    public static final VertexBuilder[] VERTICES_SLAB_DOWN = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.DOWN).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.UPPER_LEFT),
+            new VertexBuilder(EnumFacing.DOWN).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.UPPER_RIGHT),
+            new VertexBuilder(EnumFacing.DOWN).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.DOWN).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+    };
+
+    public static final VertexBuilder[] VERTICES_SLAB_WEST = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.WEST).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
+            new VertexBuilder(EnumFacing.WEST).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.WEST).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+            new VertexBuilder(EnumFacing.WEST).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
+    };
+
+    public static final VertexBuilder[] VERTICES_SLAB_EAST = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.EAST).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
+            new VertexBuilder(EnumFacing.EAST).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.EAST).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+            new VertexBuilder(EnumFacing.EAST).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
+    };
+
+    public static final VertexBuilder[] VERTICES_SLAB_NORTH = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
+            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+            new VertexBuilder(EnumFacing.NORTH).withCoords(0, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
+    };
+
+    public static final VertexBuilder[] VERTICES_SLAB_SOUTH = new VertexBuilder[] {
+            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0.5F, 1).withTextureMapping(EnumTexCorner.MIDDLE_RIGHT),
+            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0, 1).withTextureMapping(EnumTexCorner.BOTTOM_RIGHT),
+            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0, 0).withTextureMapping(EnumTexCorner.BOTTOM_LEFT),
+            new VertexBuilder(EnumFacing.SOUTH).withCoords(1, 0.5F, 0).withTextureMapping(EnumTexCorner.MIDDLE_LEFT)
+    };*/
+// EnumTexCorner.java
+//Bitte nicht löschen!
+    /*UPPER_LEFT(0, 16),
+    UPPER_RIGHT(16, 16),
+    MIDDLE_LEFT(0, 8),
+    MIDDLE_RIGHT(16, 8),
+    BOTTOM_LEFT(0, 0),
+    BOTTOM_RIGHT(16, 0);*/

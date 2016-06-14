@@ -20,100 +20,101 @@ package tk.eichler.carpentersblocks.blocks;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.StateMapperBase;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import tk.eichler.carpentersblocks.CarpentersBlocks;
-import tk.eichler.carpentersblocks.Constants;
 import tk.eichler.carpentersblocks.model.BaseModel;
+import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * A generic block without any properties.
+ * A basic block with default implementations for Minecraft rendering and block logic.
  */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public abstract class BaseBlock extends BlockContainer {
-
     private ItemBlock itemBlock = null;
 
-    BaseBlock(Material materialIn) {
+    BaseBlock(final Material materialIn) {
         super(materialIn);
 
-        setCreativeTab(CarpentersBlocks.creativeTabs);
+        setCreativeTab(CarpentersBlocks.CREATIVE_TAB);
 
         setRegistryName(getRegisterName());
         setUnlocalizedName(getRegisterName());
     }
 
+    protected abstract IProperty[] getProperties();
+    protected abstract IUnlistedProperty[] getUnlistedProperties();
+
 
     public abstract String getRegisterName();
-
     public abstract BaseModel getModel();
+    public abstract TileEntity getTileEntity();
 
-    @Override
-    public abstract TileEntity createNewTileEntity(World worldIn, int meta);
+    public abstract void onRightClickEvent(PlayerInteractEvent.RightClickBlock event);
+    public abstract void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event);
 
-    public abstract void registerTileEntity();
-
-    public void onRightClickEvent(PlayerInteractEvent.RightClickBlock event) {}
-
-    public void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event) {}
-
-
-    public void registerBlock() {
-        GameRegistry.register(this);
-        GameRegistry.register(getItemBlock());
-    }
-
-    public ModelResourceLocation getBlockModelLocation() {
-        return new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID, getRegisterName()), "normal");
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void initCustomModelLocations() {
-        final ResourceLocation location = new ResourceLocation(Constants.MOD_ID, getRegisterName());
-        final ModelResourceLocation locationItem = new ModelResourceLocation(location, "inventory");
-
-        ModelLoader.setCustomModelResourceLocation(getItemBlock(), 0, locationItem);
-        ModelLoader.setCustomStateMapper(this, new StateMapperBase() {
-            @Override
-            protected ModelResourceLocation getModelResourceLocation(@Nullable IBlockState state) {
-                return getBlockModelLocation();
-            }
-        });
-    }
 
     public ItemBlock getItemBlock() {
         if (itemBlock == null) {
-            itemBlock = createItemBlock();
+            itemBlock = BlockHelper.createItemBlock(this);
         }
 
         return itemBlock;
     }
 
-    private ItemBlock createItemBlock() {
-        final ItemBlock itemBlock = new ItemBlock(this);
-        itemBlock.setRegistryName(getRegisterName());
-        itemBlock.setUnlocalizedName(getUnlocalizedName());
-        return itemBlock;
+    @Override
+    public TileEntity createNewTileEntity(@Nullable final World worldIn, final int meta) {
+        return getTileEntity();
+    }
+
+    @Override
+    public int getMetaFromState(final IBlockState state) {
+        return 0;
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new ExtendedBlockState(this, getProperties(), getUnlistedProperties());
     }
 
 
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
+    public boolean isVisuallyOpaque() {
+        return false;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean isOpaqueCube(final IBlockState state) {
+        return false;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean isFullCube(final IBlockState state) {
+        return false;
+    }
+
+    @Override
+    public EnumBlockRenderType getRenderType(final IBlockState state) {
         return EnumBlockRenderType.MODEL;
+    }
+
+    @Override
+    public BlockRenderLayer getBlockLayer() {
+        return BlockRenderLayer.CUTOUT_MIPPED;
     }
 }

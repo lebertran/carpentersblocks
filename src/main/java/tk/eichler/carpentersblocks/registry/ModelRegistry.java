@@ -17,33 +17,24 @@
 
 package tk.eichler.carpentersblocks.registry;
 
-import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.util.registry.IRegistry;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import tk.eichler.carpentersblocks.blocks.BaseBlock;
+import tk.eichler.carpentersblocks.registry.helper.RegistryHelper;
 
 @SideOnly(Side.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-public class TextureRegistry implements BaseRegistry {
+public final class ModelRegistry implements BaseRegistry {
 
-    public static final ResourceLocation RESOURCE_QUARTERED_FRAME =
-            new ResourceLocation("carpentersblocks:blocks/general/quartered_frame");
+    private static ModelRegistry instance;
 
-    private static final ResourceLocation[] TEXTURE_RESOURCES = new ResourceLocation[] {
-            RESOURCE_QUARTERED_FRAME
-    };
-
-    private static TextureRegistry instance;
-
-    public static TextureRegistry getInstance() {
+    public static ModelRegistry getInstance() {
         if (instance == null) {
-            instance = new TextureRegistry();
+            instance = new ModelRegistry();
         }
 
         return instance;
@@ -54,13 +45,27 @@ public class TextureRegistry implements BaseRegistry {
         return true;
     }
 
+
+    @Override
+    public void onPreInit() {
+        registerLocations();
+    }
+
+    private void registerLocations() {
+        for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
+            RegistryHelper.registerModelLocation(block);
+        }
+    }
+
     @SubscribeEvent
     @SuppressWarnings("unused")
-    public void onPreTextureStitching(final TextureStitchEvent.Pre event) {
-        if (event.getMap() == Minecraft.getMinecraft().getTextureMapBlocks()) {
-            for (ResourceLocation location : TEXTURE_RESOURCES) {
-                event.getMap().registerSprite(location);
-            }
+    public void onModelBakeEvent(final ModelBakeEvent event) {
+        loadModels(event.getModelRegistry());
+    }
+
+    private static void loadModels(final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry) {
+        for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
+            modelRegistry.putObject(RegistryHelper.getModelLocation(block, false), block.getModel());
         }
     }
 }

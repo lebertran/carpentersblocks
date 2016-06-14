@@ -17,26 +17,48 @@
 
 package tk.eichler.carpentersblocks.proxy;
 
+import com.google.common.collect.ImmutableList;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import tk.eichler.carpentersblocks.registry.BaseRegistry;
+import tk.eichler.carpentersblocks.registry.ModelRegistry;
+import tk.eichler.carpentersblocks.registry.TextureRegistry;
 
+import java.util.List;
+
+/**
+ * Initialization proxy, run on the client only.
+ */
 @SuppressWarnings("unused")
-public class ClientProxy extends CommonProxy {
+public final class ClientProxy extends CommonProxy {
+    /**
+     * Registries, that run on the client only.
+     */
+    private static final List<BaseRegistry> CLIENT_REGISTRIES = ImmutableList.of(
+            ModelRegistry.getInstance(),
+            TextureRegistry.getInstance());
 
     @Override
-    public void preInit(FMLPreInitializationEvent event) {
-        super.preInit(event);
+    public void registerRegistries() {
+        super.registerRegistries();
 
-        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
-            registry.onPreInitClient();
+        CLIENT_REGISTRIES.stream()
+                .filter(BaseRegistry::receivesEvents)
+                .forEach(MinecraftForge.EVENT_BUS::register);
     }
 
     @Override
-    public void init(FMLInitializationEvent event) {
+    public void preInit(final FMLPreInitializationEvent event) {
+        super.preInit(event);
+
+        CLIENT_REGISTRIES.forEach(BaseRegistry::onPreInit);
+    }
+
+    @Override
+    public void init(final FMLInitializationEvent event) {
         super.init(event);
 
-        for (BaseRegistry registry : BaseRegistry.ALL_REGISTRIES)
-            registry.onInitClient();
+        CLIENT_REGISTRIES.forEach(BaseRegistry::onInit);
     }
 }

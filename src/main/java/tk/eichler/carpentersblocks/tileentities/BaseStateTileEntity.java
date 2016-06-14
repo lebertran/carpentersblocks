@@ -30,16 +30,24 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.FMLLog;
+import tk.eichler.carpentersblocks.data.BaseData;
+import tk.eichler.carpentersblocks.data.DataUpdateListener;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-abstract class BaseStateTileEntity extends TileEntity {
+public abstract class BaseStateTileEntity<D extends BaseData> extends TileEntity implements DataUpdateListener {
     private IExtendedBlockState state;
 
-    protected  <V>void updateState(IUnlistedProperty<V> property, V value) {
+    protected abstract D getDataInstance();
+
+    public void setState(final IExtendedBlockState state) {
+        this.state = state;
+    }
+
+    <V> void updateState(final IUnlistedProperty<V> property, final V value) {
         if (getState() == null) {
             FMLLog.severe("State is null, cannot update state");
 
@@ -49,7 +57,7 @@ abstract class BaseStateTileEntity extends TileEntity {
         this.state = getState().withProperty(property, value);
     }
 
-    protected <T extends Comparable<T>, V extends T>void updateState(IProperty<T> property, V value) {
+    <T extends Comparable<T>, V extends T> void updateState(final IProperty<T> property, final V value) {
         if (getState() == null) {
             FMLLog.severe("State is null, cannot update state");
 
@@ -59,9 +67,9 @@ abstract class BaseStateTileEntity extends TileEntity {
         this.state = (IExtendedBlockState) getState().withProperty(property, value);
     }
 
-    protected void triggerStateUpdate() {
+    void triggerStateUpdate() {
         if (this.worldObj != null) {
-            this.worldObj.setBlockState(getPos(), this.state, 3);
+            this.worldObj.setBlockState(getPos(), this.state);
             this.worldObj.markBlockRangeForRenderUpdate(getPos(), getPos());
 
             this.worldObj.checkLightFor(EnumSkyBlock.BLOCK, getPos());
@@ -80,7 +88,6 @@ abstract class BaseStateTileEntity extends TileEntity {
 
         return state;
     }
-
 
     /**
      * Used by server to communicate changes to client.
@@ -110,12 +117,13 @@ abstract class BaseStateTileEntity extends TileEntity {
      * @param pkt SPacketUpdateTileEntity
      */
     @Override
-    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
+    public void onDataPacket(final NetworkManager net, final SPacketUpdateTileEntity pkt) {
         readFromNBT(pkt.getNbtCompound());
     }
 
     @Override
-    public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newState) {
+    public boolean shouldRefresh(final World world, final BlockPos pos,
+                                 final IBlockState oldState, final IBlockState newState) {
         return oldState.getBlock() != newState.getBlock();
     }
 }

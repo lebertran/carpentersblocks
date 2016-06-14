@@ -18,35 +18,59 @@
 package tk.eichler.carpentersblocks.model;
 
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.util.EnumFacing;
 import tk.eichler.carpentersblocks.model.helper.VertexBuilder;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import static net.minecraft.util.EnumFacing.*;
+import static tk.eichler.carpentersblocks.model.BaseModelData.*;
 import static tk.eichler.carpentersblocks.model.helper.EnumCoords.*;
 import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CarpentersSlopeModelData {
-    public static final VertexBuilder[] VERTICES_SLOPE_FRONT_NORTH = new VertexBuilder[] {
+final class CarpentersSlopeModelData {
+    private CarpentersSlopeModelData() {
+        // do not instantiate
+    }
+
+    private static final VertexBuilder[] VERTICES_SLOPE_FRONT_NORTH = new VertexBuilder[] {
             new VertexBuilder(NORTH).withCoords(TOP_BOTTOMRIGHT).withTextureMapping(UPPER_LEFT),
             new VertexBuilder(NORTH).withCoords(BOTTOM_BOTTOMRIGHT).withTextureMapping(BOTTOM_LEFT),
             new VertexBuilder(NORTH).withCoords(BOTTOM_BOTTOMLEFT).withTextureMapping(BOTTOM_RIGHT),
             new VertexBuilder(NORTH).withCoords(TOP_BOTTOMLEFT).withTextureMapping(UPPER_RIGHT),
     };
 
-    public static final VertexBuilder[] VERTICES_SLOPE_SIDE_WEST = new VertexBuilder[] {
+    private static final VertexBuilder[] VERTICES_SLOPE_SIDE_WEST = new VertexBuilder[] {
             new VertexBuilder(WEST).withCoords(WEST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
             new VertexBuilder(WEST).withCoords(WEST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
             new VertexBuilder(WEST).withCoords(WEST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
             new VertexBuilder(WEST).withCoords(WEST_UPPERRIGHT).withTextureMapping(UPPER_RIGHT),
     };
 
-    public static final VertexBuilder[] VERTICES_SLOPE_SIDE_EAST = new VertexBuilder[] {
+    private static final VertexBuilder[] VERTICES_SLOPE_SIDE_MIRRORED_EAST = new VertexBuilder[] {
             new VertexBuilder(EAST).withCoords(EAST_UPPERLEFT).withTextureMapping(UPPER_LEFT),
             new VertexBuilder(EAST).withCoords(EAST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
             new VertexBuilder(EAST).withCoords(EAST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
             new VertexBuilder(EAST).withCoords(EAST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
     };
+
+    static VertexBuilder[] getVerticesDefaultSlope(final EnumFacing facing) {
+        switch (facing) {
+            case DOWN:
+                return VERTICES_FULL_DOWN;
+            case WEST:
+                return VERTICES_SLOPE_SIDE_WEST;
+            case EAST:
+                return VERTICES_SLOPE_SIDE_MIRRORED_EAST;
+            case NORTH:
+                return VERTICES_SLOPE_FRONT_NORTH;
+            case SOUTH:
+                return VERTICES_FULL_SOUTH;
+            case UP:
+            default:
+                return VERTICES_EMPTY;
+        }
+    }
 }

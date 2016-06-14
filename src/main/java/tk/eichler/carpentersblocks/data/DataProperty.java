@@ -24,14 +24,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class DataProperty<T extends CoverableData> implements IUnlistedProperty<T> {
+public final class DataProperty<T extends CoverableData> implements IUnlistedProperty<T> {
 
     private static final String NAME = "DataProperty";
     private final Class<T> clazz;
 
-    public static final DataProperty<ShapeableData> SHAPEABLE_DATA = new DataProperty<>(ShapeableData.class);
+    public static final DataProperty<CoverableData> COVERABLE_DATA = new DataProperty<>(CoverableData.class);
 
-    private DataProperty(Class<T> clazz) {
+    private DataProperty(final Class<T> clazz) {
         this.clazz = clazz;
     }
 
@@ -41,7 +41,7 @@ public class DataProperty<T extends CoverableData> implements IUnlistedProperty<
     }
 
     @Override
-    public boolean isValid(T value) {
+    public boolean isValid(final T value) {
         return true;
     }
 
@@ -51,7 +51,7 @@ public class DataProperty<T extends CoverableData> implements IUnlistedProperty<
     }
 
     @Override
-    public String valueToString(T value) {
+    public String valueToString(final T value) {
         return value.toString();
     }
 }

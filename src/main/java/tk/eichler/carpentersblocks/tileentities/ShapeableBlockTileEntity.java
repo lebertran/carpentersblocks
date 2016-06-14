@@ -18,141 +18,47 @@
 package tk.eichler.carpentersblocks.tileentities;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.common.FMLLog;
-import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
+import tk.eichler.carpentersblocks.blocks.BlockShapeable;
 import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.DataUpdateListener;
+import tk.eichler.carpentersblocks.data.EnumOrientation;
+import tk.eichler.carpentersblocks.data.EnumShape;
 import tk.eichler.carpentersblocks.data.ShapeableData;
-import tk.eichler.carpentersblocks.util.BlockHelper;
-import tk.eichler.carpentersblocks.util.EnumShape;
 
+import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * This tile entity can save an ItemStack and an EnumState
- * and thus can be used for any Carpenter's Block.
- */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ShapeableBlockTileEntity extends BaseStateTileEntity implements DataUpdateListener {
+public class ShapeableBlockTileEntity extends CoverableBlockTileEntity {
 
     private final ShapeableData shapeableData = ShapeableData.createInstance();
 
     public ShapeableBlockTileEntity() {
-        this.shapeableData.addUpdateListener(this);
+        this.getDataInstance().addUpdateListener(this);
     }
 
-    /**
-     * Actions
-     */
-
-    /**
-     * This should be used in order to set the block stack e.g. from an PlayerInteractEvent handler.
-     * Do not use this method in this TileEntity.
-     */
-    public boolean trySetBlockStack(ItemStack stack) {
-
-        if (stack.isItemEqual(this.shapeableData.itemStack)) {
-            return false;
-        }
-
-        if (BlockHelper.isValidCoverBlock(stack)) {
-            if (worldObj == null || !worldObj.isRemote) {
-                this.shapeableData.setItemStack(stack);
-                this.shapeableData.checkForChanges();
-            }
-
-            return true;
-        }
-
-
-        return false;
-    }
-
-    /**
-     * This should be used in order to remove the block stack e.g. from an PlayerInteractEvent handler.
-     * Do not use this method in this TileEntity.
-     */
-    public boolean removeBlockStack() {
-
-        if (!shapeableData.hasCover()) {
-            return false;
-        }
-
-        if (worldObj == null || !worldObj.isRemote) {
-            this.shapeableData.setItemStack(null);
-            this.shapeableData.checkForChanges();
-        }
-
-        return true;
-    }
-
-    /**
-     * Toggles through all available shapes defined by {@link EnumShape}.
-     *
-     * This should be used e.g. from an PlayerInteractEvent handler.
-     * Do not use this method in this TileEntity.
-     */
-    public boolean setShape(EnumFacing facing) {
-
-        if (getState() == null) {
-            FMLLog.severe("Cannot toggle state as there is no default state yet.");
-            return false;
-        }
-
-        if (worldObj == null || !worldObj.isRemote) {
-            if (! this.shapeableData.isShape(EnumShape.FULL_BLOCK)) {
-                this.shapeableData.setShape(EnumShape.FULL_BLOCK);
-                this.shapeableData.checkForChanges();
-                return true;
-            }
-
-            switch (facing) {
-                case UP:
-                    this.shapeableData.setShape(EnumShape.BOTTOM_SLAB);
-                    break;
-                case DOWN:
-                    this.shapeableData.setShape(EnumShape.TOP_SLAB);
-            }
-
-            this.shapeableData.checkForChanges();
-        }
-
-        return true;
-    }
-
-    /**
-     * Reads an {@link NBTTagCompound} and writes its values to internal variables. Finally triggers a BlockState update.
-     * @param compound NBTTagCompound
-     */
     @Override
-    public void readFromNBT(NBTTagCompound compound) {
-        super.readFromNBT(compound);
-
-        this.shapeableData.fromNBT(compound);
+    protected ShapeableData getDataInstance() {
+        return shapeableData;
     }
 
-    /**
-     * Server method, updates given NBTTagCompound with values from internal variables.
-     * @param compound unmodified NBTTagCompound
-     * @return updated NBTTagCompound
-     */
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-        super.writeToNBT(compound);
-        this.shapeableData.toNBT(compound);
-        return compound;
+    public void setShapeableData(@Nonnull final EnumShape shape, @Nonnull final EnumOrientation orientation) {
+        getDataInstance().setShape(shape);
+        getDataInstance().setOrientation(orientation);
+
+        this.shapeableData.checkForChanges();
+    }
+
+    public ShapeableData getShapeableData() {
+        return this.shapeableData;
     }
 
     @Override
     public void onDataUpdate() {
-        updateState(DataProperty.SHAPEABLE_DATA, this.shapeableData);
-        updateState(BlockCarpentersBlock.PROP_SHAPE, this.shapeableData.currentShape); //@workaround, see BlockCarpentersBlock.java
+        updateState(DataProperty.COVERABLE_DATA, getDataInstance());
+        updateState(BlockShapeable.PROP_SHAPE, getDataInstance().getShape());
+        updateState(BlockShapeable.PROP_ORIENTATION, getDataInstance().getOrientation());
 
         triggerStateUpdate();
     }
-
 }
