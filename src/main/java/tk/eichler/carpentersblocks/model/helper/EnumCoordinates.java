@@ -20,11 +20,10 @@ package tk.eichler.carpentersblocks.model.helper;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import static net.minecraft.util.EnumFacing.*;
-import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumTexel.*;
 
 /**
  * Nomenclature: LAYER_CORNER
@@ -35,7 +34,7 @@ import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
  */
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public enum EnumCoords {
+public enum EnumCoordinates {
 
     BOTTOM_UPPERLEFT(0, 0, 1, DOWN, UPPER_LEFT), // B
     BOTTOM_UPPERRIGHT(1, 0, 1, DOWN, UPPER_RIGHT), // C
@@ -89,9 +88,9 @@ public enum EnumCoords {
     public final float z;
 
     private final EnumFacing facing;
-    private final EnumTexCorner defaultCorner;
+    private final EnumTexel defaultCorner;
 
-    EnumCoords(final float x, final float y, final float z, final EnumFacing facing, final EnumTexCorner defaultCorner) {
+    EnumCoordinates(final float x, final float y, final float z, final EnumFacing facing, final EnumTexel defaultCorner) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -100,23 +99,12 @@ public enum EnumCoords {
         this.defaultCorner = defaultCorner;
     }
 
-    EnumCoords(final EnumCoords enumCoords, final EnumFacing facing, final EnumTexCorner defaultCorner) {
-        this.x = enumCoords.x;
-        this.y = enumCoords.y;
-        this.z = enumCoords.z;
+    EnumCoordinates(final EnumCoordinates enumCoordinates, final EnumFacing facing, final EnumTexel defaultCorner) {
+        this.x = enumCoordinates.x;
+        this.y = enumCoordinates.y;
+        this.z = enumCoordinates.z;
 
         this.facing = facing;
         this.defaultCorner = defaultCorner;
-    }
-
-    @Nullable
-    public static EnumCoords getCoords(final EnumFacing facing, final EnumTexCorner defaultCorner) {
-        for (EnumCoords coords : EnumCoords.values()) {
-            if (coords.facing == facing && coords.defaultCorner == defaultCorner) {
-                return coords;
-            }
-        }
-
-        return null;
     }
 }

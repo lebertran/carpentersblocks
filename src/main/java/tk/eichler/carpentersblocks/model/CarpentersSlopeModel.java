@@ -19,7 +19,6 @@ package tk.eichler.carpentersblocks.model;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
@@ -29,80 +28,59 @@ import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataProperty;
 import tk.eichler.carpentersblocks.data.EnumOrientation;
 import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.model.helper.BakedQuadBuilder;
-import tk.eichler.carpentersblocks.model.helper.ModelHelper;
-import tk.eichler.carpentersblocks.model.helper.Transformation;
-import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
+import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class CarpentersSlopeModel extends BaseModel {
 
-    private final TextureAtlasSprite defaultSprite;
-
-    public CarpentersSlopeModel() {
-        this.defaultSprite = Minecraft.getMinecraft().getTextureMapBlocks()
-                .getAtlasSprite(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString());
-    }
+    private CoverableData coverData = CoverableData.createInstance();
+    private EnumShape shape = EnumShape.SLOPE;
+    private EnumOrientation orientation = EnumOrientation.NORTH;
 
     @Override
     public List<BakedQuad> getQuads(@Nullable final IBlockState state, @Nullable final EnumFacing side, final long rand) {
         final List<BakedQuad> ret = new ArrayList<>();
 
-        if (state == null || !(state instanceof IExtendedBlockState)) {
-            return ret;
+        getDataFromState(state);
+
+        Map<EnumFacing, TextureAtlasSprite> textureMap;
+
+        if (state != null && this.coverData.hasCover()) {
+            TextureMapPool.getInstance().addTextureMap(coverData, state);
+            textureMap = TextureMapPool.getInstance().getTextureMap(coverData.getBlockId());
+        } else {
+            textureMap = TextureMapPool.getInstance().getTextureMap(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString());
         }
 
-        CoverableData data = ((IExtendedBlockState) state).getValue(DataProperty.COVERABLE_DATA);
-        EnumShape shape = state.getValue(BlockShapeable.PROP_SHAPE);
-        EnumOrientation orientation = state.getValue(BlockShapeable.PROP_ORIENTATION);
-
-        TextureAtlasSprite sprite = ModelHelper.getSpriteFromItemStack(data.getItemStack(), state, side, rand, this.defaultSprite);
-
-        for (EnumFacing face : EnumFacing.values()) {
-            ret.add(getBakedQuad(face, shape, sprite));
+        for (final EnumFacing face : EnumFacing.values()) {
+            ret.add(CarpentersSlopeModelData.getBakedQuad(face, shape, textureMap));
         }
 
         return ret;
     }
 
-    private BakedQuad getBakedQuad(final EnumFacing facing, final EnumShape shape, final TextureAtlasSprite sprite) {
-        final Transformation[] transformations = getTransformations(shape);
-
-        return new BakedQuadBuilder(CarpentersSlopeModelData.getVerticesDefaultSlope(facing), facing, sprite, transformations).build();
-    }
-
-    private static Transformation[] getTransformations(final EnumShape shape) {
-        switch (shape) {
-            case NORTH_SLOPE:
-                return TransformationHelper.NO_TRANSFORMS;
-            case SOUTH_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180);
-            case WEST_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270);
-            case EAST_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90);
-            case NORTH_TOP_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_UP);
-            case SOUTH_TOP_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180, TransformationHelper.ROTATE_UP);
-            case WEST_TOP_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270, TransformationHelper.ROTATE_UP);
-            case EAST_TOP_SLOPE:
-                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90, TransformationHelper.ROTATE_UP);
-            default:
-                return TransformationHelper.NO_TRANSFORMS;
+    public void getDataFromState(@Nullable final IBlockState state) {
+        if (state == null || !(state instanceof IExtendedBlockState)) {
+            return;
         }
+
+        final IExtendedBlockState eState = (IExtendedBlockState) state;
+
+        this.coverData = eState.getValue(DataProperty.COVERABLE_DATA);
+        this.shape = state.getValue(BlockShapeable.PROP_SHAPE);
+        this.orientation = state.getValue(BlockShapeable.PROP_ORIENTATION);
     }
 
     @Override
     public TextureAtlasSprite getParticleTexture() {
-        return this.defaultSprite;
+        return TextureMapPool.getInstance().getTextureMap(TextureRegistry.RESOURCE_QUARTERED_FRAME.toString()).get(EnumFacing.UP);
     }
 }

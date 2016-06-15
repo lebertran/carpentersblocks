@@ -23,18 +23,14 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import tk.eichler.carpentersblocks.data.EnumOrientation;
 import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.model.helper.BakedQuadBuilder;
-import tk.eichler.carpentersblocks.model.helper.Transformation;
-import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
-import tk.eichler.carpentersblocks.model.helper.VertexBuilder;
+import tk.eichler.carpentersblocks.model.helper.*;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.MessageFormat;
+import java.util.Map;
 
-import static net.minecraft.util.EnumFacing.NORTH;
-import static net.minecraft.util.EnumFacing.UP;
-import static tk.eichler.carpentersblocks.model.helper.EnumCoords.*;
-import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumCoordinates.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumTexel.*;
 import static tk.eichler.carpentersblocks.model.helper.TransformationHelper.*;
 
 @ParametersAreNonnullByDefault
@@ -45,45 +41,41 @@ public final class CarpentersBlockModelData {
         // do not instantiate
     }
 
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_SIDE = new VertexBuilder[] {
-            new VertexBuilder(NORTH).withCoords(NORTH_MIDDLELEFT).withTextureMapping(MIDDLE_LEFT),
-            new VertexBuilder(NORTH).withCoords(NORTH_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(NORTH).withCoords(NORTH_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(NORTH).withCoords(NORTH_MIDDLERIGHT).withTextureMapping(MIDDLE_RIGHT)
-    };
+    private static final Polygon POLYGON_BOTTOM_SLAB_TOP = new Polygon()
+            .putVertex(0, CENTERHORIZ_UPPERLEFT, UPPER_LEFT)
+            .putVertex(1, CENTERHORIZ_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(2, CENTERHORIZ_BOTTOMRIGHT, BOTTOM_RIGHT)
+            .putVertex(3, CENTERHORIZ_UPPERRIGHT, UPPER_RIGHT);
 
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_TOP = new VertexBuilder[] {
-            new VertexBuilder(UP).withCoords(0, 0.5F, 0).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(UP).withCoords(0, 0.5F, 1).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(UP).withCoords(1, 0.5F, 1).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(UP).withCoords(1, 0.5F, 0).withTextureMapping(UPPER_RIGHT),
-    };
+    private static final Polygon POLYGON_BOTTOM_SLAB_SIDE_NORTH = new Polygon()
+            .putVertex(0, NORTH_MIDDLELEFT, MIDDLE_LEFT)
+            .putVertex(1, NORTH_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(2, NORTH_BOTTOMRIGHT, BOTTOM_RIGHT)
+            .putVertex(3, NORTH_MIDDLERIGHT, MIDDLE_RIGHT);
 
+    private static final Polygon POLYGON_BOTTOM_SLAB_SIDE_SOUTH =
+            POLYGON_BOTTOM_SLAB_SIDE_NORTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_180);
 
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_NORTH =
-            VERTICES_BOTTOM_SLAB_SIDE;
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_WEST =
-            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_270);
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_SOUTH =
-            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_180);
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_EAST =
-            TransformationHelper.transformVertices(VERTICES_BOTTOM_SLAB_SIDE, TransformationHelper.ROTATE_SIDE_90);
-    private static final VertexBuilder[] VERTICES_BOTTOM_SLAB_UP = VERTICES_BOTTOM_SLAB_TOP;
+    private static final Polygon POLYGON_BOTTOM_SLAB_SIDE_WEST =
+            POLYGON_BOTTOM_SLAB_SIDE_NORTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_270);
 
-    private static VertexBuilder[] getDefaultSlabVertices(final EnumFacing facing) {
+    private static final Polygon POLYGON_BOTTOM_SLAB_SIDE_EAST =
+            POLYGON_BOTTOM_SLAB_SIDE_NORTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_90);
+
+    private static Polygon getDefaultSlabPolygon(final EnumFacing facing) {
         switch (facing) {
-            case DOWN:
-                return BaseModelData.VERTICES_FULL_DOWN;
             case UP:
-                return VERTICES_BOTTOM_SLAB_UP;
+                return POLYGON_BOTTOM_SLAB_TOP;
+            case DOWN:
+                return BaseModelData.getFullPolygon(EnumFacing.DOWN);
             case NORTH:
-                return VERTICES_BOTTOM_SLAB_NORTH;
-            case SOUTH:
-                return VERTICES_BOTTOM_SLAB_SOUTH;
-            case WEST:
-                return VERTICES_BOTTOM_SLAB_WEST;
+                return POLYGON_BOTTOM_SLAB_SIDE_NORTH;
             case EAST:
-                return VERTICES_BOTTOM_SLAB_EAST;
+                return POLYGON_BOTTOM_SLAB_SIDE_EAST;
+            case SOUTH:
+                return POLYGON_BOTTOM_SLAB_SIDE_SOUTH;
+            case WEST:
+                return POLYGON_BOTTOM_SLAB_SIDE_WEST;
             default:
                 throw new UnsupportedOperationException("Invalid facing");
         }
@@ -95,37 +87,37 @@ public final class CarpentersBlockModelData {
                 return TransformationHelper.get(TRANSLATE_Y_HALF);
             case DOWN:
                 return TransformationHelper.NO_TRANSFORMS;
-            case SOUTH:
-                return TransformationHelper.get(ROTATE_UP);
-            case WEST:
-                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_90);
             case NORTH:
-                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_180);
+                return TransformationHelper.get(ROTATE_UP_270);
             case EAST:
-                return TransformationHelper.get(ROTATE_UP, ROTATE_SIDE_270);
+                return TransformationHelper.get(ROTATE_UP_270, ROTATE_SIDE_90);
+            case SOUTH:
+                return TransformationHelper.get(ROTATE_UP_270, ROTATE_SIDE_180);
+            case WEST:
+                return TransformationHelper.get(ROTATE_UP_270, ROTATE_SIDE_270);
             default:
                 return TransformationHelper.NO_TRANSFORMS;
         }
     }
 
-    static BakedQuad getBakedQuad(final EnumShape shape, final EnumOrientation orientation,
-                                  final EnumFacing facing, final TextureAtlasSprite sprite) {
-        final VertexBuilder[] vertices;
+    static BakedQuad createQuad(final EnumShape shape, final EnumOrientation orientation,
+                                final EnumFacing facing, final Map<EnumFacing, TextureAtlasSprite> textureMap) {
+        final Polygon polygon;
         final Transformation[] transforms;
 
         switch (shape) {
             case FULL_BLOCK:
-                vertices = BaseModelData.getFullVertices(facing);
+                polygon = BaseModelData.getFullPolygon(facing);
                 transforms = NO_TRANSFORMS;
                 break;
             case SLAB:
-                vertices = getDefaultSlabVertices(facing);
+                polygon = getDefaultSlabPolygon(facing);
                 transforms = getSlabTransformations(orientation);
                 break;
             default:
                 throw new IllegalArgumentException(MessageFormat.format("Invalid shape {0} in CarpentersBlockModel.", shape));
         }
 
-        return new BakedQuadBuilder(vertices, facing, sprite, transforms).build();
+        return new BakedQuadBuilder(polygon, facing, textureMap, transforms).build();
     }
 }

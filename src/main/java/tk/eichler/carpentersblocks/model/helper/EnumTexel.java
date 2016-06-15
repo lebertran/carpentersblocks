@@ -17,7 +17,7 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
-public enum EnumTexCorner {
+public enum EnumTexel {
     UPPER_LEFT(0, 0),
     UPPER_RIGHT(16, 0),
     MIDDLE_LEFT(0, 8),
@@ -29,7 +29,7 @@ public enum EnumTexCorner {
     private final int u;
     private final int v;
 
-    EnumTexCorner(final int u, final int v) {
+    EnumTexel(final int u, final int v) {
         this.u = u;
         this.v = v;
     }

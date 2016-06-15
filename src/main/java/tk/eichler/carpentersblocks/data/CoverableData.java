@@ -60,6 +60,14 @@ public class CoverableData extends BaseData {
         setChanged(true);
     }
 
+    public String getBlockId() {
+        if (coveringBlock == null) {
+            throw new UnsupportedOperationException("Trying to get block id without block");
+        }
+
+        return coveringBlock.getRegistryName().toString() + "@meta=" + itemStack.getItemDamage();
+    }
+
     public void fromNBT(final NBTTagCompound nbt) {
         final ItemStack stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(NBT_BLOCK_STACK));
 

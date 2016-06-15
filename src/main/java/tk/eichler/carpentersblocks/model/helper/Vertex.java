@@ -17,6 +17,34 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
-interface VertexTransformer {
-    VertexBuilder transform(VertexBuilder builder);
+public class Vertex {
+    private final float x;
+    private final float y;
+    private final float z;
+
+    private final EnumTexel corner;
+
+    public Vertex(final float x, final float y, final float z, final EnumTexel corner) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+
+        this.corner = corner;
+    }
+
+    public EnumTexel getTexCorner() {
+        return this.corner;
+    }
+
+    public float getX() {
+        return this.x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getZ() {
+        return z;
+    }
 }

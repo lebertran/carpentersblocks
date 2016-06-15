@@ -46,15 +46,6 @@ public final class TransformationHelper {
     // Helpers
     public static final Transformation[] NO_TRANSFORMS = new Transformation[0];
 
-    public static VertexBuilder[] transformVertices(final VertexBuilder[] vertices, final Transformation transformation) {
-        return new VertexBuilder[] {
-                vertices[0].withTransformation(transformation),
-                vertices[1].withTransformation(transformation),
-                vertices[2].withTransformation(transformation),
-                vertices[3].withTransformation(transformation),
-        };
-    }
-
     public static Transformation[] get(final Transformation... transformations) {
         return transformations;
     }

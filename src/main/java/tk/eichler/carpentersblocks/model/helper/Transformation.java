@@ -22,6 +22,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.vecmath.Vector4f;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -49,5 +50,12 @@ public class Transformation {
         }
 
         return previousFacing;
+    }
+
+    public Vertex createTransformedVertex(final Vertex vertex) {
+        final Vector4f newCoords = new Vector4f(vertex.getX(), vertex.getY(), vertex.getZ(), 1);
+        this.transformation.getMatrix().transform(newCoords);
+
+        return new Vertex(newCoords.getX(), newCoords.getY(), newCoords.getZ(), vertex.getTexCorner());
     }
 }

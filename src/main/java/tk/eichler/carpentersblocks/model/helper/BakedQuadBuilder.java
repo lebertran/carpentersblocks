@@ -25,7 +25,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.vecmath.Vector4f;
+import java.util.Map;
 
 /**
  * Builds a {@link net.minecraft.client.renderer.block.model.BakedQuad},
@@ -51,58 +51,43 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
     private final EnumFacing facing;
 
     /**
-     * All transformations.
-     */
-    private final Transformation[] transformations;
-
-    /**
-     * Are there TRSRTransformations.
-     */
-    private final boolean hasTransformation;
-
-    /**
      * Texture sprite.
      */
     private final TextureAtlasSprite sprite;
 
+    /**
+     * Transformed polygon.
+     */
+    private final Polygon polygon;
 
     /**
-     * @param vertices Vertices defining a planar shape.
-     * @param facing Facing of the shape.
-     * @param sprite Texture of the shape.
+     * @param polygon Polygon defining a planar shape.
+     * @param untransformedFacing Facing of the shape.
+     * @param textureMap Texture map of the shape.
      * @param transformations Optional transformations
      */
-    public BakedQuadBuilder(final VertexBuilder[] vertices, final EnumFacing facing,
-                            final TextureAtlasSprite sprite, final Transformation... transformations) {
+    public BakedQuadBuilder(final Polygon polygon, final EnumFacing untransformedFacing,
+                            final Map<EnumFacing, TextureAtlasSprite> textureMap, final Transformation... transformations) {
         super(DEFAULT_FORMAT);
 
-        if (vertices.length != VERTICES_AMOUNT) {
-            throw new UnsupportedOperationException("Invalid vertices");
-        }
-
-        this.transformations = transformations;
-        this.hasTransformation = transformations.length > 0;
-
-        this.sprite = sprite;
-        this.facing = getTransformedFacing(facing);
+        this.facing = getTransformedFacing(untransformedFacing, transformations);
+        this.sprite = textureMap.get(this.facing);
 
         setQuadOrientation(this.facing);
         setTexture(this.sprite);
         setApplyDiffuseLighting(true);
 
-        for (VertexBuilder vertex : vertices) {
-            this.putVertex(vertex);
-        }
+        this.polygon = polygon.createWithTransformation(transformations);
     }
 
-    public EnumFacing getTransformedFacing(final EnumFacing untransformedFacing) {
-        if (!this.hasTransformation) {
+    private static EnumFacing getTransformedFacing(final EnumFacing untransformedFacing, final Transformation[] transformations) {
+        if (transformations.length <= 0) {
             return untransformedFacing;
         }
 
         EnumFacing result = untransformedFacing;
 
-        for (Transformation t : this.transformations) {
+        for (Transformation t : transformations) {
             result = t.transformFacing(result);
         }
 
@@ -117,35 +102,24 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
      *
      * @param vertex a Vertex
      */
-    private void putVertex(final VertexBuilder vertex) {
-        Vector4f transformVec = new Vector4f();
+    private void putVertex(final Vertex vertex) {
         for (int e = 0; e < DEFAULT_FORMAT.getElementCount(); e++) {
             switch (DEFAULT_FORMAT.getElement(e).getUsage()) {
                 case POSITION:
-                    transformVec.set(vertex.getVector4f());
-
-                    if (!hasTransformation) {
-                        put(e, transformVec.x, transformVec.y, transformVec.z, 1.0f);
-                    } else {
-                        for (Transformation t : transformations) {
-                            t.get().getMatrix().transform(transformVec);
-                        }
-
-                        put(e, transformVec.x, transformVec.y, transformVec.z, transformVec.w);
-                    }
+                        put(e, vertex.getX(), vertex.getY(), vertex.getZ(), 1.0f);
                     break;
                 case COLOR:
                     put(e, 1, 1, 1, 1);
                     break;
                 case UV:
                     if (DEFAULT_FORMAT.getElement(e).getIndex() == 0) {
-                        float u = sprite.getInterpolatedU(vertex.getCorner().getU());
-                        float v = sprite.getInterpolatedV(vertex.getCorner().getV());
+                        float u = sprite.getInterpolatedU(vertex.getTexCorner().getU());
+                        float v = sprite.getInterpolatedV(vertex.getTexCorner().getV());
                         put(e, u, v, 0f, 1f);
                         break;
                     }
                 case NORMAL:
-                    put(e, (float) facing.getFrontOffsetX(),
+                    put(e,  (float) facing.getFrontOffsetX(),
                             (float) facing.getFrontOffsetY(),
                             (float) facing.getFrontOffsetZ(), 0f);
                     break;
@@ -154,5 +128,14 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
                     break;
             }
         }
+    }
+
+    @Override
+    public UnpackedBakedQuad build() {
+        for (Vertex vertex : this.polygon.getVertices()) {
+            this.putVertex(vertex);
+        }
+
+        return super.build();
     }
 }

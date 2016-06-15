@@ -15,37 +15,52 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.model.helper;
+package tk.eichler.carpentersblocks.model.texture;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tk.eichler.carpentersblocks.data.CoverableData;
+import tk.eichler.carpentersblocks.model.helper.ModelHelper;
 
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class ModelHelper {
-    private ModelHelper() {
-        // do not instantiate
-    }
+@SideOnly(Side.CLIENT)
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
+public class TextureMapPool {
 
-    private static TextureAtlasSprite getSpriteWithFacing(final List<BakedQuad> quads, @Nullable final EnumFacing facing) {
-        for (BakedQuad quad : quads) {
-            if (quad.getFace() == facing) {
-                return quad.getSprite();
-            }
+    private static TextureMapPool instance;
+
+    private final Map<String, Map<EnumFacing, TextureAtlasSprite>> textureMaps = new HashMap<>();
+
+
+    public static TextureMapPool getInstance() {
+        if (instance == null) {
+            instance = new TextureMapPool();
         }
 
-        return quads.get(0).getSprite();
+        return instance;
     }
 
-    public static Map<EnumFacing, TextureAtlasSprite> createTextureMap(final IBakedModel model, final IBlockState state) {
+    public Map<EnumFacing, TextureAtlasSprite> getTextureMap(final String key) {
+        return textureMaps.get(key);
+    }
+
+    public void addTextureMap(final CoverableData data, final IBlockState state) {
+        if (textureMaps.containsKey(data.getBlockId())) {
+            return;
+        }
+
+        final IBakedModel model = ModelHelper.getModel(data.getItemStack());
         final Map<EnumFacing, TextureAtlasSprite> textureMap = new HashMap<>();
 
         for (EnumFacing facing : EnumFacing.values()) {
@@ -67,36 +82,19 @@ public final class ModelHelper {
             }
         }
 
-        return textureMap;
+        textureMaps.put(data.getBlockId(), textureMap);
     }
 
-    public static Map<EnumFacing, TextureAtlasSprite> createTextureMap(final TextureAtlasSprite sprite) {
+    public void addTextureMap(final String key, final TextureAtlasSprite sprite) {
+        if (textureMaps.containsKey(key)) {
+            return;
+        }
+
         final Map<EnumFacing, TextureAtlasSprite> textureMap = new HashMap<>();
         for (EnumFacing facing : EnumFacing.values()) {
             textureMap.put(facing, sprite);
         }
 
-        return textureMap;
-    }
-
-    public static TextureAtlasSprite getSpriteFromItemStack(@Nullable final ItemStack itemStack, final IBlockState state,
-                                                            @Nullable final EnumFacing facing, final long random, final TextureAtlasSprite defaultSprite) {
-        if (itemStack == null) {
-            return defaultSprite;
-        }
-
-        final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemStack);
-        final List<BakedQuad> quads = model.getQuads(state, facing, random);
-
-        if (quads.size() <= 0) {
-            return defaultSprite;
-        }
-
-        return getSpriteWithFacing(quads, facing);
-
-    }
-
-    public static IBakedModel getModel(final ItemStack itemStack) {
-        return Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemStack);
+        textureMaps.put(key, textureMap);
     }
 }

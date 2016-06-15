@@ -19,11 +19,13 @@ package tk.eichler.carpentersblocks.registry;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -61,6 +63,21 @@ public class TextureRegistry implements BaseRegistry {
             for (ResourceLocation location : TEXTURE_RESOURCES) {
                 event.getMap().registerSprite(location);
             }
+        }
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings("unused")
+    public void onPostTextureStitching(final TextureStitchEvent.Post event) {
+        for (ResourceLocation location : TEXTURE_RESOURCES) {
+            TextureAtlasSprite sprite = event.getMap().getAtlasSprite(location.toString());
+
+            if (sprite.getIconName().equals("missingno")) {
+                continue;
+            }
+
+            TextureMapPool.getInstance().addTextureMap(
+                    location.toString(), event.getMap().getAtlasSprite(location.toString()));
         }
     }
 }

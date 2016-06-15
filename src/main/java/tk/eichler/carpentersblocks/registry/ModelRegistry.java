@@ -66,6 +66,7 @@ public final class ModelRegistry implements BaseRegistry {
     private static void loadModels(final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry) {
         for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
             modelRegistry.putObject(RegistryHelper.getModelLocation(block, false), block.getModel());
+            modelRegistry.putObject(RegistryHelper.getModelLocation(block, true), block.getModel());
         }
     }
 }

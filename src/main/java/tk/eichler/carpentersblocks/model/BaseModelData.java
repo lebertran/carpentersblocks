@@ -19,60 +19,52 @@ package tk.eichler.carpentersblocks.model;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
-import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
-import tk.eichler.carpentersblocks.model.helper.VertexBuilder;
+import tk.eichler.carpentersblocks.model.helper.*;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static net.minecraft.util.EnumFacing.UP;
-import static tk.eichler.carpentersblocks.model.helper.EnumCoords.*;
-import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumCoordinates.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumTexel.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-final class BaseModelData {
+public final class BaseModelData {
 
     private BaseModelData() {
         // do not instantiate
     }
 
-    private static final VertexBuilder[] VERTICES_FULL_UP = new VertexBuilder[] {
-            new VertexBuilder(UP).withCoords(TOP_UPPERLEFT).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(UP).withCoords(TOP_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(UP).withCoords(TOP_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(UP).withCoords(TOP_UPPERRIGHT).withTextureMapping(UPPER_RIGHT),
-    };
+    private static final Polygon POLYGON_UP = new Polygon()
+            .putVertex(0, TOP_UPPERLEFT, UPPER_LEFT)
+            .putVertex(1, TOP_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(2, TOP_BOTTOMRIGHT, BOTTOM_RIGHT)
+            .putVertex(3, TOP_UPPERRIGHT, UPPER_RIGHT);
 
-    static final VertexBuilder[] VERTICES_FULL_DOWN = TransformationHelper.transformVertices(VERTICES_FULL_UP, TransformationHelper.ROTATE_UP_180);
-    static final VertexBuilder[] VERTICES_FULL_SOUTH = TransformationHelper.transformVertices(VERTICES_FULL_UP, TransformationHelper.ROTATE_UP_270);
+    private static final Polygon POLYGON_DOWN = POLYGON_UP.createWithTransformation(TransformationHelper.ROTATE_UP_180);
 
-    static final VertexBuilder[] VERTICES_FULL_EAST = TransformationHelper.transformVertices(VERTICES_FULL_SOUTH, TransformationHelper.ROTATE_SIDE_270);
-    static final VertexBuilder[] VERTICES_FULL_WEST = TransformationHelper.transformVertices(VERTICES_FULL_SOUTH, TransformationHelper.ROTATE_SIDE_180);
-    static final VertexBuilder[] VERTICES_FULL_NORTH = TransformationHelper.transformVertices(VERTICES_FULL_SOUTH, TransformationHelper.ROTATE_SIDE_90);
+    private static final Polygon POLYGON_SIDE_SOUTH = POLYGON_UP.createWithTransformation(TransformationHelper.ROTATE_UP_270);
 
-    static final VertexBuilder[] VERTICES_EMPTY = new VertexBuilder[] {
-        new VertexBuilder().withTextureMapping(UPPER_LEFT),
-        new VertexBuilder().withTextureMapping(UPPER_LEFT),
-        new VertexBuilder().withTextureMapping(UPPER_LEFT),
-        new VertexBuilder().withTextureMapping(UPPER_LEFT)
-    };
+    private static final Polygon POLYGON_SIDE_EAST = POLYGON_SIDE_SOUTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_270);
+    private static final Polygon POLYGON_SIDE_WEST = POLYGON_SIDE_SOUTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_90);
+    private static final Polygon POLYGON_SIDE_NORTH = POLYGON_SIDE_SOUTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_180);
 
-    static VertexBuilder[] getFullVertices(final EnumFacing facing) {
+
+    static Polygon getFullPolygon(final EnumFacing facing) {
         switch (facing) {
             case UP:
-                return VERTICES_FULL_UP;
+                return POLYGON_UP;
             case DOWN:
-                return VERTICES_FULL_DOWN;
+                return POLYGON_DOWN;
             case NORTH:
-                return VERTICES_FULL_NORTH;
+                return POLYGON_SIDE_NORTH;
             case SOUTH:
-                return VERTICES_FULL_SOUTH;
+                return POLYGON_SIDE_SOUTH;
             case WEST:
-                return VERTICES_FULL_WEST;
+                return POLYGON_SIDE_WEST;
             case EAST:
-                return VERTICES_FULL_EAST;
+                return POLYGON_SIDE_EAST;
             default:
-                throw new UnsupportedOperationException("Invalid facing.");
+                throw new IllegalArgumentException("Invalid facing.");
         }
     }
 }

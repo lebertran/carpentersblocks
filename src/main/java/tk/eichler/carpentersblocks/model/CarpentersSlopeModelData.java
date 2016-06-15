@@ -18,15 +18,18 @@
 package tk.eichler.carpentersblocks.model;
 
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import tk.eichler.carpentersblocks.model.helper.VertexBuilder;
+import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.model.helper.*;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
-import static net.minecraft.util.EnumFacing.*;
-import static tk.eichler.carpentersblocks.model.BaseModelData.*;
-import static tk.eichler.carpentersblocks.model.helper.EnumCoords.*;
-import static tk.eichler.carpentersblocks.model.helper.EnumTexCorner.*;
+import java.util.Map;
+
+import static tk.eichler.carpentersblocks.model.helper.EnumCoordinates.*;
+import static tk.eichler.carpentersblocks.model.helper.EnumTexel.*;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -35,42 +38,68 @@ final class CarpentersSlopeModelData {
         // do not instantiate
     }
 
-    private static final VertexBuilder[] VERTICES_SLOPE_FRONT_NORTH = new VertexBuilder[] {
-            new VertexBuilder(NORTH).withCoords(TOP_BOTTOMRIGHT).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(NORTH).withCoords(BOTTOM_BOTTOMRIGHT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(NORTH).withCoords(BOTTOM_BOTTOMLEFT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(NORTH).withCoords(TOP_BOTTOMLEFT).withTextureMapping(UPPER_RIGHT),
-    };
+    private static final Polygon POLYGON_SLOPE_FRONT_NORTH = new Polygon()
+            .putVertex(0, TOP_BOTTOMRIGHT, UPPER_LEFT)
+            .putVertex(1, BOTTOM_BOTTOMRIGHT, BOTTOM_LEFT)
+            .putVertex(2, BOTTOM_BOTTOMLEFT, BOTTOM_RIGHT)
+            .putVertex(3, TOP_BOTTOMLEFT, UPPER_RIGHT);
 
-    private static final VertexBuilder[] VERTICES_SLOPE_SIDE_WEST = new VertexBuilder[] {
-            new VertexBuilder(WEST).withCoords(WEST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(WEST).withCoords(WEST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(WEST).withCoords(WEST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(WEST).withCoords(WEST_UPPERRIGHT).withTextureMapping(UPPER_RIGHT),
-    };
+    private static final Polygon POLYGON_SLOPE_SIDE_WEST = new Polygon()
+            .putVertex(0, WEST_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(1, WEST_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(2, WEST_BOTTOMRIGHT, BOTTOM_RIGHT)
+            .putVertex(3, WEST_UPPERRIGHT, UPPER_RIGHT);
 
-    private static final VertexBuilder[] VERTICES_SLOPE_SIDE_MIRRORED_EAST = new VertexBuilder[] {
-            new VertexBuilder(EAST).withCoords(EAST_UPPERLEFT).withTextureMapping(UPPER_LEFT),
-            new VertexBuilder(EAST).withCoords(EAST_BOTTOMLEFT).withTextureMapping(BOTTOM_LEFT),
-            new VertexBuilder(EAST).withCoords(EAST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-            new VertexBuilder(EAST).withCoords(EAST_BOTTOMRIGHT).withTextureMapping(BOTTOM_RIGHT),
-    };
+    private static final Polygon POLYGON_SLOPE_SIDE_MIRRORED_EAST = new Polygon()
+            .putVertex(0, EAST_UPPERLEFT, UPPER_LEFT)
+            .putVertex(1, EAST_BOTTOMLEFT, BOTTOM_LEFT)
+            .putVertex(2, EAST_BOTTOMRIGHT, BOTTOM_RIGHT)
+            .putVertex(3, EAST_BOTTOMRIGHT, BOTTOM_RIGHT);
 
-    static VertexBuilder[] getVerticesDefaultSlope(final EnumFacing facing) {
+    static Polygon getDefaultSlopePolygon(final EnumFacing facing) {
         switch (facing) {
             case DOWN:
-                return VERTICES_FULL_DOWN;
+                return BaseModelData.getFullPolygon(EnumFacing.DOWN);
             case WEST:
-                return VERTICES_SLOPE_SIDE_WEST;
+                return POLYGON_SLOPE_SIDE_WEST;
             case EAST:
-                return VERTICES_SLOPE_SIDE_MIRRORED_EAST;
+                return POLYGON_SLOPE_SIDE_MIRRORED_EAST;
             case NORTH:
-                return VERTICES_SLOPE_FRONT_NORTH;
+                return POLYGON_SLOPE_FRONT_NORTH;
             case SOUTH:
-                return VERTICES_FULL_SOUTH;
+                return BaseModelData.getFullPolygon(EnumFacing.SOUTH);
             case UP:
             default:
-                return VERTICES_EMPTY;
+                return Polygon.POLYGON_EMPTY;
         }
+    }
+
+    static Transformation[] getTransformations(final EnumShape shape) {
+        switch (shape) {
+            case NORTH_SLOPE:
+                return TransformationHelper.NO_TRANSFORMS;
+            case SOUTH_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180);
+            case WEST_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270);
+            case EAST_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90);
+            case NORTH_TOP_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_UP);
+            case SOUTH_TOP_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180, TransformationHelper.ROTATE_UP);
+            case WEST_TOP_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270, TransformationHelper.ROTATE_UP);
+            case EAST_TOP_SLOPE:
+                return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90, TransformationHelper.ROTATE_UP);
+            default:
+                return TransformationHelper.NO_TRANSFORMS;
+        }
+    }
+
+    static BakedQuad getBakedQuad(final EnumFacing facing, final EnumShape shape, final Map<EnumFacing, TextureAtlasSprite> sprite) {
+        final Transformation[] transformations = getTransformations(shape);
+
+        return new BakedQuadBuilder(getDefaultSlopePolygon(facing), facing, sprite, transformations).build();
     }
 }
