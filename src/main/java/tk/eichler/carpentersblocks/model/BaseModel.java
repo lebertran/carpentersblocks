@@ -23,10 +23,10 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.common.model.TRSRTransformation;
 import org.apache.commons.lang3.tuple.Pair;
+import tk.eichler.carpentersblocks.model.helper.ModelHelper;
 
 import javax.annotation.Nonnull;
 import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
 
@@ -70,23 +70,19 @@ public abstract class BaseModel implements IPerspectiveAwareModel {
     public Pair<? extends IBakedModel, Matrix4f> handlePerspective(final ItemCameraTransforms.TransformType cameraTransformType) {
         final TRSRTransformation transformation;
 
-        Pair<? extends IBakedModel, Matrix4f> pair = IPerspectiveAwareModel.MapWrapper.handlePerspective(this,
-                IPerspectiveAwareModel.MapWrapper.getTransforms(ItemCameraTransforms.DEFAULT),
-                cameraTransformType);
-
 
         switch (cameraTransformType) {
             case GUI:
                 transformation = new TRSRTransformation(
                         null,
-                        new Quat4f(30, 255, 0, 1),
+                        null,
                         new Vector3f(0.625F, 0.625F, 0.625F),
-                        null
+                        ModelHelper.getQuatFromAngle(30, 225, 0)
                 );
                 break;
             case GROUND:
                 transformation = new TRSRTransformation(
-                        new Vector3f(0, 3, 0),
+                        null,
                         null,
                         new Vector3f(0.25F, 0.25F, 0.25F),
                         null
@@ -102,16 +98,16 @@ public abstract class BaseModel implements IPerspectiveAwareModel {
                 break;
             case THIRD_PERSON_RIGHT_HAND:
                 transformation = new TRSRTransformation(
-                        new Vector3f(0, 2.5F, 0),
-                        new Quat4f(75, 45, 0, 1),
+                        null,
+                        null,
                         new Vector3f(0.375F, 0.375F, 0.375F),
-                        null
+                        ModelHelper.getQuatFromAngle(75, 45, 0)
                 );
                 break;
             case FIRST_PERSON_RIGHT_HAND:
                 transformation = new TRSRTransformation(
                         null,
-                        new Quat4f(0, 45, 0, 1),
+                        ModelHelper.getQuatFromAngle(0, 45, 0),
                         new Vector3f(0.4F, 0.4F, 0.4F),
                         null
                 );
@@ -119,22 +115,17 @@ public abstract class BaseModel implements IPerspectiveAwareModel {
             case FIRST_PERSON_LEFT_HAND:
                 transformation = new TRSRTransformation(
                         null,
-                        new Quat4f(0, 255, 0, 1),
+                        null,
                         new Vector3f(0.4F, 0.4F, 0.4F),
-                        null
+                        ModelHelper.getQuatFromAngle(0, 225, 0)
                 );
-
-                ItemCameraTransforms.DEFAULT.getTransform(cameraTransformType);
                 break;
             default:
                 transformation = null;
         }
 
         if (transformation != null) {
-            final TRSRTransformation newTransform = transformation.compose(
-                    new TRSRTransformation(pair.getRight())
-            );
-            return Pair.of(this, newTransform.getMatrix());
+            return Pair.of(this, transformation.getMatrix());
         }
 
         return Pair.of(this, null);

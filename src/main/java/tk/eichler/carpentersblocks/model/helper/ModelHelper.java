@@ -17,83 +17,26 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.model.TRSRTransformation;
 
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.vecmath.Quat4f;
 
 public final class ModelHelper {
     private ModelHelper() {
         // do not instantiate
     }
 
-    private static TextureAtlasSprite getSpriteWithFacing(final List<BakedQuad> quads, @Nullable final EnumFacing facing) {
-        for (BakedQuad quad : quads) {
-            if (quad.getFace() == facing) {
-                return quad.getSprite();
-            }
-        }
+    //@todo move to math helper, if there are more math actions in the future
+    public static final float DEGREE_TO_RADIANT = (float) (Math.PI / 180F);
 
-        return quads.get(0).getSprite();
-    }
-
-    public static Map<EnumFacing, TextureAtlasSprite> createTextureMap(final IBakedModel model, final IBlockState state) {
-        final Map<EnumFacing, TextureAtlasSprite> textureMap = new HashMap<>();
-
-        for (EnumFacing facing : EnumFacing.values()) {
-            final List<BakedQuad> quads = model.getQuads(state, facing, 0);
-
-            if (quads.size() == 0) {
-                continue;
-            }
-
-            for (BakedQuad quad : quads) {
-                if (quad.getFace() == facing) {
-                    textureMap.put(facing, quad.getSprite());
-                    break;
-                }
-            }
-
-            if (!textureMap.containsKey(facing)) {
-                textureMap.put(facing, quads.get(0).getSprite());
-            }
-        }
-
-        return textureMap;
-    }
-
-    public static Map<EnumFacing, TextureAtlasSprite> createTextureMap(final TextureAtlasSprite sprite) {
-        final Map<EnumFacing, TextureAtlasSprite> textureMap = new HashMap<>();
-        for (EnumFacing facing : EnumFacing.values()) {
-            textureMap.put(facing, sprite);
-        }
-
-        return textureMap;
-    }
-
-    public static TextureAtlasSprite getSpriteFromItemStack(@Nullable final ItemStack itemStack, final IBlockState state,
-                                                            @Nullable final EnumFacing facing, final long random, final TextureAtlasSprite defaultSprite) {
-        if (itemStack == null) {
-            return defaultSprite;
-        }
-
-        final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemStack);
-        final List<BakedQuad> quads = model.getQuads(state, facing, random);
-
-        if (quads.size() <= 0) {
-            return defaultSprite;
-        }
-
-        return getSpriteWithFacing(quads, facing);
-
+    public static Quat4f getQuatFromAngle(final int x, final int y, final int z) {
+        return TRSRTransformation.quatFromXYZ(
+                x * DEGREE_TO_RADIANT,
+                y * DEGREE_TO_RADIANT,
+                z * DEGREE_TO_RADIANT);
     }
 
     public static IBakedModel getModel(final ItemStack itemStack) {

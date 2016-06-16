@@ -42,7 +42,7 @@ import java.util.Map;
 public class CarpentersSlopeModel extends BaseModel {
 
     private CoverableData coverData = CoverableData.createInstance();
-    private EnumShape shape = EnumShape.SLOPE;
+    private EnumShape shape = EnumShape.WEST_SLOPE; //@todo migrate (*)_SLOPE to EnumOrientation
     private EnumOrientation orientation = EnumOrientation.NORTH;
 
     @Override
