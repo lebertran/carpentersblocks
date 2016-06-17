@@ -15,19 +15,20 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.blocks;
+package tk.eichler.carpentersblocks.data;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.block.properties.PropertyEnum;
 
-public interface BlockShapeable {
+public final class Properties {
+    private Properties() {
+        // do not instantiate
+    }
 
-    void onCarpentersHammerLeftClick(final World world, final BlockPos pos, final EnumFacing facing);
-    void onCarpentersHammerRightClick(final World world, final BlockPos pos, final EnumFacing facing);
+    public static final DataProperty<CoverableData> COVER_DATA = new DataProperty<>(CoverableData.class);
 
-    boolean isSideSolid(final IBlockState baseState, final IBlockAccess world,
-                        final BlockPos pos, final EnumFacing side);
+    public static final PropertyEnum<EnumShape> SHAPE =
+            PropertyEnum.create("shape", EnumShape.class);
+
+    public static final PropertyEnum<EnumOrientation> ORIENTATION =
+            PropertyEnum.create("orientation", EnumOrientation.class);
 }

@@ -29,6 +29,9 @@ import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+/**
+ * Registers custom textures.
+ */
 @SideOnly(Side.CLIENT)
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -51,8 +54,7 @@ public class TextureRegistry implements BaseRegistry {
         return instance;
     }
 
-    @Override
-    public boolean receivesEvents() {
+    @Override public boolean receivesEvents() {
         return true;
     }
 

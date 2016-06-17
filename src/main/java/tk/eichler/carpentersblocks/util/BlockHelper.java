@@ -23,8 +23,9 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
 import tk.eichler.carpentersblocks.blocks.BlockCoverable;
+import tk.eichler.carpentersblocks.blocks.BlockDataHelper;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -56,7 +57,7 @@ public final class BlockHelper {
 
         final Block block = Block.getBlockFromItem(blockProp.getItem());
 
-        if (block == null || block instanceof BaseBlock) {
+        if (block == null || block instanceof BlockWrapper) {
             return false;
         }
 
@@ -76,7 +77,7 @@ public final class BlockHelper {
         }
 
         if (block instanceof BlockCoverable) {
-            final Block coveringBlock = ((BlockCoverable) block).getCoverableData(blockState).getCoveringBlock();
+            final Block coveringBlock = BlockDataHelper.getCoverData(blockState).getCoveringBlock();
 
             if (coveringBlock == Blocks.GLASS || coveringBlock == Blocks.STAINED_GLASS) {
                 return true;
@@ -85,10 +86,10 @@ public final class BlockHelper {
         return false;
     }
 
-    public static ItemBlock createItemBlock(final BaseBlock block) {
-        final ItemBlock itemBlock = new ItemBlock(block);
-        itemBlock.setRegistryName(block.getRegisterName());
-        itemBlock.setUnlocalizedName(block.getUnlocalizedName());
+    public static ItemBlock createItemBlock(final BlockWrapper wrapper) {
+        final ItemBlock itemBlock = new ItemBlock(wrapper);
+        itemBlock.setRegistryName(wrapper.getRegistryName());
+        itemBlock.setUnlocalizedName(wrapper.getUnlocalizedName());
         return itemBlock;
     }
 }

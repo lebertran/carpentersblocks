@@ -17,6 +17,8 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
+import net.minecraft.util.EnumFacing;
+
 public class Vertex {
     private final float x;
     private final float y;
@@ -46,5 +48,18 @@ public class Vertex {
 
     public float getZ() {
         return z;
+    }
+
+    public float get(final EnumFacing.Axis axis) {
+        switch (axis) {
+            case X:
+                return this.x;
+            case Y:
+                return this.y;
+            case Z:
+                return this.z;
+            default:
+                throw new IllegalArgumentException("Illegal axis argument.");
+        }
     }
 }

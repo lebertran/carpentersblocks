@@ -17,27 +17,28 @@
 
 package tk.eichler.carpentersblocks.registry;
 
+import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
-import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
-import tk.eichler.carpentersblocks.blocks.BlockCarpentersSlope;
+import tk.eichler.carpentersblocks.blocks.*;
+import tk.eichler.carpentersblocks.blocks.variants.BlockCuboid;
+import tk.eichler.carpentersblocks.blocks.variants.BlockSlope;
 import tk.eichler.carpentersblocks.registry.helper.RegistryHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 /**
  * Registers all mod blocks, their ItemBlocks and their TileEntities
- * in {@link net.minecraftforge.fml.common.registry.GameRegistry}
+ * in {@link net.minecraftforge.fml.common.registry.GameRegistry}.
  */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class BlockRegistry implements BaseRegistry {
 
-    static final BaseBlock[] ALL_BLOCKS = new BaseBlock[] {
-            BlockCarpentersBlock.INSTANCE,
-            BlockCarpentersSlope.INSTANCE
-    };
-
+    static final List<BlockWrapper> ALL_BLOCKS = ImmutableList.of(
+            BlockCuboid.getInstance(),
+            BlockSlope.getInstance()
+    );
     public static final BlockRegistry INSTANCE = new BlockRegistry();
 
 
@@ -53,13 +54,13 @@ public class BlockRegistry implements BaseRegistry {
     }
 
     private void registerBlocks() {
-        for (BaseBlock block : ALL_BLOCKS) {
+        for (BlockWrapper block : ALL_BLOCKS) {
             RegistryHelper.registerBlock(block);
         }
     }
 
     private void registerTileEntities() {
-        for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
+        for (BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
             RegistryHelper.registerTileEntity(block);
         }
     }

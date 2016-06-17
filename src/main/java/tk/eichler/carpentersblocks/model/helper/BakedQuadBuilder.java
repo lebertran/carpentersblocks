@@ -41,11 +41,6 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
     private static final VertexFormat DEFAULT_FORMAT = DefaultVertexFormats.ITEM;
 
     /**
-     * Exact amount of vertices the builder can hold.
-     */
-    private static final int VERTICES_AMOUNT = 4;
-
-    /**
      * Shape side.
      */
     private final EnumFacing facing;
@@ -70,7 +65,7 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
                             final Map<EnumFacing, TextureAtlasSprite> textureMap, final Transformation... transformations) {
         super(DEFAULT_FORMAT);
 
-        this.facing = getTransformedFacing(untransformedFacing, transformations);
+        this.facing = TransformationHelper.getTransformedFacing(untransformedFacing, transformations);
         this.sprite = textureMap.get(this.facing);
 
         setQuadOrientation(this.facing);
@@ -78,20 +73,6 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
         setApplyDiffuseLighting(true);
 
         this.polygon = polygon.createWithTransformation(transformations);
-    }
-
-    private static EnumFacing getTransformedFacing(final EnumFacing untransformedFacing, final Transformation[] transformations) {
-        if (transformations.length <= 0) {
-            return untransformedFacing;
-        }
-
-        EnumFacing result = untransformedFacing;
-
-        for (Transformation t : transformations) {
-            result = t.transformFacing(result);
-        }
-
-        return result;
     }
 
 
@@ -132,7 +113,7 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
 
     @Override
     public UnpackedBakedQuad build() {
-        for (Vertex vertex : this.polygon.getVertices()) {
+        for (final Vertex vertex : this.polygon.getVertices()) {
             this.putVertex(vertex);
         }
 

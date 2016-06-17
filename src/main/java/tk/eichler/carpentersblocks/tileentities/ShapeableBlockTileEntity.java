@@ -18,11 +18,7 @@
 package tk.eichler.carpentersblocks.tileentities;
 
 import mcp.MethodsReturnNonnullByDefault;
-import tk.eichler.carpentersblocks.blocks.BlockShapeable;
-import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.data.ShapeableData;
+import tk.eichler.carpentersblocks.data.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -38,7 +34,7 @@ public class ShapeableBlockTileEntity extends CoverableBlockTileEntity {
     }
 
     @Override
-    protected ShapeableData getDataInstance() {
+    public ShapeableData getDataInstance() {
         return shapeableData;
     }
 
@@ -46,7 +42,7 @@ public class ShapeableBlockTileEntity extends CoverableBlockTileEntity {
         getDataInstance().setShape(shape);
         getDataInstance().setOrientation(orientation);
 
-        this.shapeableData.checkForChanges();
+        this.getDataInstance().checkForChanges();
     }
 
     public ShapeableData getShapeableData() {
@@ -55,9 +51,9 @@ public class ShapeableBlockTileEntity extends CoverableBlockTileEntity {
 
     @Override
     public void onDataUpdate() {
-        updateState(DataProperty.COVERABLE_DATA, getDataInstance());
-        updateState(BlockShapeable.PROP_SHAPE, getDataInstance().getShape());
-        updateState(BlockShapeable.PROP_ORIENTATION, getDataInstance().getOrientation());
+        updateState(Properties.COVER_DATA, getDataInstance());
+        updateState(Properties.SHAPE, getDataInstance().getShape());
+        updateState(Properties.ORIENTATION, getDataInstance().getOrientation());
 
         triggerStateUpdate();
     }

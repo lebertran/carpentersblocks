@@ -23,11 +23,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import tk.eichler.carpentersblocks.blocks.BlockShapeable;
-import tk.eichler.carpentersblocks.data.CoverableData;
-import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.data.*;
 import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
 
@@ -50,14 +46,15 @@ public class CarpentersBlockModel extends BaseModel {
         final EnumShape enumShape;
         final EnumOrientation enumOrientation;
         CoverableData coverData;
+
         if (state == null || !(state instanceof IExtendedBlockState)) {
             enumShape = EnumShape.FULL_BLOCK;
             enumOrientation = EnumOrientation.DOWN;
             coverData = CoverableData.createInstance();
         } else {
-            enumShape = state.getValue(BlockShapeable.PROP_SHAPE);
-            enumOrientation = state.getValue(BlockShapeable.PROP_ORIENTATION);
-            coverData = ((IExtendedBlockState) state).getValue(DataProperty.COVERABLE_DATA);
+            enumShape = state.getValue(Properties.SHAPE);
+            enumOrientation = state.getValue(Properties.ORIENTATION);
+            coverData = ((IExtendedBlockState) state).getValue(Properties.COVER_DATA);
             if (coverData == null) {
                 coverData = CoverableData.createInstance();
             }

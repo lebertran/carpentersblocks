@@ -15,19 +15,31 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.blocks;
+package tk.eichler.carpentersblocks.util;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import tk.eichler.carpentersblocks.Constants;
+import tk.eichler.carpentersblocks.blocks.variants.BlockCuboid;
 
-public interface BlockShapeable {
+import javax.annotation.Nonnull;
 
-    void onCarpentersHammerLeftClick(final World world, final BlockPos pos, final EnumFacing facing);
-    void onCarpentersHammerRightClick(final World world, final BlockPos pos, final EnumFacing facing);
+public final class CarpentersCreativeTab extends CreativeTabs {
 
-    boolean isSideSolid(final IBlockState baseState, final IBlockAccess world,
-                        final BlockPos pos, final EnumFacing side);
+    private static CarpentersCreativeTab instance = new CarpentersCreativeTab();
+
+    public CarpentersCreativeTab() {
+        super(Constants.MOD_ID);
+    }
+
+    @Nonnull
+    public static CarpentersCreativeTab get() {
+        return instance;
+    }
+
+    @Override
+    @Nonnull
+    public Item getTabIconItem() {
+        return BlockCuboid.getInstance().getItemBlock(); //@TODO: replace by carpenter's hammer.
+    }
 }

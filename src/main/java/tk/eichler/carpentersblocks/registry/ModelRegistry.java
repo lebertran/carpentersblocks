@@ -17,6 +17,7 @@
 
 package tk.eichler.carpentersblocks.registry;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.registry.IRegistry;
@@ -24,10 +25,17 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 import tk.eichler.carpentersblocks.registry.helper.RegistryHelper;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+/**
+ * Registers custom {@link ModelResourceLocation}s and injects custom {@link IBakedModel}s.
+ */
 @SideOnly(Side.CLIENT)
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public final class ModelRegistry implements BaseRegistry {
 
     private static ModelRegistry instance;
@@ -52,7 +60,7 @@ public final class ModelRegistry implements BaseRegistry {
     }
 
     private void registerLocations() {
-        for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
+        for (BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
             RegistryHelper.registerModelLocation(block);
         }
     }
@@ -64,7 +72,7 @@ public final class ModelRegistry implements BaseRegistry {
     }
 
     private static void loadModels(final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry) {
-        for (BaseBlock block : BlockRegistry.ALL_BLOCKS) {
+        for (BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
             modelRegistry.putObject(RegistryHelper.getModelLocation(block, false), block.getModel());
             modelRegistry.putObject(RegistryHelper.getModelLocation(block, true), block.getModel());
         }

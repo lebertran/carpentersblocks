@@ -15,41 +15,22 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.data;
+package tk.eichler.carpentersblocks.util;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public final class DataProperty<T extends CoverableData> implements IUnlistedProperty<T> {
-
-    private static final String NAME = "DataProperty";
-    private final Class<T> clazz;
-
-    public DataProperty(final Class<T> clazz) {
-        this.clazz = clazz;
+public final class ItemHelper {
+    private ItemHelper() {
+        // do not instantiate
     }
 
-    @Override
-    public String getName() {
-        return NAME;
-    }
-
-    @Override
-    public boolean isValid(final T value) {
-        return true;
-    }
-
-    @Override
-    public Class<T> getType() {
-        return clazz;
-    }
-
-    @Override
-    public String valueToString(final T value) {
-        return value.toString();
+    public static boolean isCarpentersHammer(final ItemStack itemStack) {
+        return itemStack.getItem() == Items.STICK; //@todo change to carpenters hammer
     }
 }

@@ -43,9 +43,9 @@ public abstract class BaseData {
 
     public void checkForChanges() {
         if (this.hasChanged) {
-            onDataUpdated();
-
             this.setChanged(false);
+
+            onDataUpdated();
         }
     }
 }

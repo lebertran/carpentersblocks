@@ -19,6 +19,7 @@ package tk.eichler.carpentersblocks.model.helper;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -48,5 +49,19 @@ public final class TransformationHelper {
 
     public static Transformation[] get(final Transformation... transformations) {
         return transformations;
+    }
+
+    static EnumFacing getTransformedFacing(final EnumFacing untransformedFacing, final Transformation[] transformations) {
+        if (transformations.length <= 0) {
+            return untransformedFacing;
+        }
+
+        EnumFacing result = untransformedFacing;
+
+        for (final Transformation t : transformations) {
+            result = t.transformFacing(result);
+        }
+
+        return result;
     }
 }

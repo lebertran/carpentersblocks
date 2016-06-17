@@ -22,7 +22,7 @@ import net.minecraft.block.Block;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -52,8 +52,8 @@ public class InteractionHandler implements EventHandler {
 
         if (!hasTriggered) {
             final Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
-            if (block instanceof BaseBlock) {
-                ((BaseBlock) block).onLeftClickEvent(event);
+            if (block instanceof BlockWrapper) {
+                ((BlockWrapper) block).onLeftClickEvent(event);
             }
 
             hasTriggered = true;
@@ -70,8 +70,8 @@ public class InteractionHandler implements EventHandler {
 
         final Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
 
-        if (block instanceof BaseBlock) {
-            ((BaseBlock) block).onRightClickEvent(event);
+        if (block instanceof BlockWrapper) {
+            ((BlockWrapper) block).onRightClickEvent(event);
         }
     }
 }

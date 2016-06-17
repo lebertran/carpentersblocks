@@ -18,103 +18,41 @@
 package tk.eichler.carpentersblocks.blocks;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import tk.eichler.carpentersblocks.CarpentersBlocks;
 import tk.eichler.carpentersblocks.model.BaseModel;
-import tk.eichler.carpentersblocks.util.BlockHelper;
+import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
-/**
- * A basic block with default implementations for Minecraft rendering and block logic.
- */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class BaseBlock extends BlockContainer {
-    private ItemBlock itemBlock = null;
+public interface BaseBlock {
+    String getName();
 
-    BaseBlock(final Material materialIn) {
-        super(materialIn);
+    BaseStateTileEntity createTileEntity();
 
-        setCreativeTab(CarpentersBlocks.CREATIVE_TAB);
+    BaseModel getModel();
 
-        setRegistryName(getRegisterName());
-        setUnlocalizedName(getRegisterName());
-    }
+    IProperty[] getProperties();
+    IUnlistedProperty[] getUnlistedProperties();
 
-    protected abstract IProperty[] getProperties();
-    protected abstract IUnlistedProperty[] getUnlistedProperties();
+    AxisAlignedBB[] getCollisionBoxes(final IBlockState state, final IBlockAccess world, final BlockPos pos);
+    AxisAlignedBB getMainBoundingBox(final IBlockState state, final IBlockAccess world, final BlockPos pos);
 
+    boolean isFaceRendered(final IBlockState state, final IBlockAccess world,
+                           final BlockPos pos, final EnumFacing face);
 
-    public abstract String getRegisterName();
-    public abstract BaseModel getModel();
-    public abstract TileEntity getTileEntity();
+    IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos);
 
-    public abstract void onRightClickEvent(PlayerInteractEvent.RightClickBlock event);
-    public abstract void onLeftClickEvent(PlayerInteractEvent.LeftClickBlock event);
-
-
-    public ItemBlock getItemBlock() {
-        if (itemBlock == null) {
-            itemBlock = BlockHelper.createItemBlock(this);
-        }
-
-        return itemBlock;
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(@Nullable final World worldIn, final int meta) {
-        return getTileEntity();
-    }
-
-    @Override
-    public int getMetaFromState(final IBlockState state) {
-        return 0;
-    }
-
-    @Override
-    protected BlockStateContainer createBlockState() {
-        return new ExtendedBlockState(this, getProperties(), getUnlistedProperties());
-    }
-
-
-    @Override
-    public boolean isVisuallyOpaque() {
-        return false;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean isOpaqueCube(final IBlockState state) {
-        return false;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public boolean isFullCube(final IBlockState state) {
-        return false;
-    }
-
-    @Override
-    public EnumBlockRenderType getRenderType(final IBlockState state) {
-        return EnumBlockRenderType.MODEL;
-    }
-
-    @Override
-    public BlockRenderLayer getBlockLayer() {
-        return BlockRenderLayer.CUTOUT_MIPPED;
+    default void setupPlacedBlock(final World world, final BlockPos pos, final IBlockState state, final EntityLivingBase placer, final ItemStack stack) {
     }
 }

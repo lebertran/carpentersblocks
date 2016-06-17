@@ -23,11 +23,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import tk.eichler.carpentersblocks.blocks.BlockShapeable;
-import tk.eichler.carpentersblocks.data.CoverableData;
-import tk.eichler.carpentersblocks.data.DataProperty;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
+import tk.eichler.carpentersblocks.data.*;
 import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
 
@@ -74,9 +70,9 @@ public class CarpentersSlopeModel extends BaseModel {
 
         final IExtendedBlockState eState = (IExtendedBlockState) state;
 
-        this.coverData = eState.getValue(DataProperty.COVERABLE_DATA);
-        this.shape = state.getValue(BlockShapeable.PROP_SHAPE);
-        this.orientation = state.getValue(BlockShapeable.PROP_ORIENTATION);
+        this.coverData = eState.getValue(Properties.COVER_DATA);
+        this.shape = state.getValue(Properties.SHAPE);
+        this.orientation = state.getValue(Properties.ORIENTATION);
     }
 
     @Override

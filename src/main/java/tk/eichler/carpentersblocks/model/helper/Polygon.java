@@ -17,17 +17,23 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
+import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Defines a planar shape with with four vertices.
+ */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class Polygon {
 
     private static final int VERTICES_AMOUNT = 4;
 
-    private final Vertex[] vertices = new Vertex[VERTICES_AMOUNT];
+    private final List<Vertex> vertices = new ArrayList<>();
 
     public static final Polygon POLYGON_EMPTY = new Polygon()
             .putVertex(0, EnumCoordinates.BOTTOM_BOTTOMLEFT, EnumTexel.UPPER_LEFT)
@@ -40,7 +46,7 @@ public class Polygon {
             throw new IllegalArgumentException("Invalid index.");
         }
 
-        this.vertices[index] = vertex;
+        this.vertices.add(index, vertex);
 
         return this;
     }
@@ -50,15 +56,25 @@ public class Polygon {
             throw new IllegalArgumentException("Invalid index.");
         }
 
-        this.vertices[index] = new Vertex(coords.x, coords.y, coords.z, texCorner);
+        this.vertices.add(index, new Vertex(coords.x, coords.y, coords.z, texCorner));
 
         return this;
     }
 
-    public Vertex[] getVertices() {
-        return this.vertices.clone();
+    /**
+     * Returns an immutable copy of the vertices of the current polygon.
+     * @return immutable list of vertices.
+     */
+    List<Vertex> getVertices() {
+        return ImmutableList.copyOf(this.vertices);
     }
 
+    /**
+     * Returns a new polygon with transformed data based on the current polygon.
+     *
+     * @param transformations applied transformations
+     * @return new transformed polygon instance
+     */
     public Polygon createWithTransformation(final Transformation... transformations) {
         if (transformations.length <= 0) {
             return this;
@@ -66,8 +82,8 @@ public class Polygon {
 
         final Polygon newPolygon = new Polygon();
 
-        for (int i = 0, verticesLength = vertices.length; i < verticesLength; i++) {
-            Vertex newVertex = vertices[i];
+        for (int i = 0, verticesLength = vertices.size(); i < verticesLength; i++) {
+            Vertex newVertex = vertices.get(i);
             for (Transformation t : transformations) {
                 newVertex = t.createTransformedVertex(newVertex);
             }
@@ -77,5 +93,4 @@ public class Polygon {
 
         return newPolygon;
     }
-
 }

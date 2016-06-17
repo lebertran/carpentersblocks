@@ -21,8 +21,8 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import tk.eichler.carpentersblocks.data.CoverableData;
-import tk.eichler.carpentersblocks.data.DataProperty;
 import tk.eichler.carpentersblocks.data.DataUpdateListener;
+import tk.eichler.carpentersblocks.data.Properties;
 import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -31,12 +31,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public abstract class CoverableBlockTileEntity extends BaseStateTileEntity<CoverableData> implements DataUpdateListener {
 
-    private final CoverableData coverableData = CoverableData.createInstance();
-
     @Override
-    protected CoverableData getDataInstance() {
-        return coverableData;
-    }
+    public abstract CoverableData getDataInstance();
 
     public boolean trySetBlockStack(final ItemStack stack) {
 
@@ -97,7 +93,7 @@ public abstract class CoverableBlockTileEntity extends BaseStateTileEntity<Cover
 
     @Override
     public void onDataUpdate() {
-        updateState(DataProperty.COVERABLE_DATA, getDataInstance());
+        updateState(Properties.COVER_DATA, getDataInstance());
 
         triggerStateUpdate();
     }

@@ -18,8 +18,6 @@
 package tk.eichler.carpentersblocks;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -27,15 +25,14 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import tk.eichler.carpentersblocks.blocks.BlockCarpentersBlock;
 import tk.eichler.carpentersblocks.proxy.CommonProxy;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * Mod entry point.
+ * Carpenter's Block mod entry point.
+ *
+ * Invokes preInit, init and postInit in the appropriate proxies.
  */
 @SuppressWarnings("unused")
 @MethodsReturnNonnullByDefault
@@ -54,18 +51,6 @@ public final class CarpentersBlocks {
      */
     @SidedProxy(serverSide = Constants.SERVER_PROXY, clientSide = Constants.CLIENT_PROXY)
     public static CommonProxy proxy;
-
-    /**
-     * Default creative tab.
-     */
-    public static final CreativeTabs CREATIVE_TAB = new CreativeTabs(Constants.MOD_ID) {
-        @Override
-        @SideOnly(Side.CLIENT)
-        public Item getTabIconItem() {
-            return BlockCarpentersBlock.INSTANCE.getItemBlock();
-        }
-    };
-
 
     /**
      * Triggers preInit, refer to {@link FMLPreInitializationEvent}.

@@ -27,7 +27,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import tk.eichler.carpentersblocks.Constants;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -39,17 +39,18 @@ public final class RegistryHelper {
         // do not instantiate
     }
 
-    public static void registerBlock(final BaseBlock block) {
+    public static void registerBlock(final BlockWrapper block) {
         GameRegistry.register(block);
         GameRegistry.register(block.getItemBlock());
     }
 
-    public static void registerTileEntity(final BaseBlock block) {
-        GameRegistry.registerTileEntity(block.getTileEntity().getClass(), block.getRegisterName() + ":tile_entity");
+    public static void registerTileEntity(final BlockWrapper block) {
+        GameRegistry.registerTileEntity(block.createTileEntity().getClass(),
+                block.getName() + ":tile_entity");
     }
 
     @SideOnly(Side.CLIENT)
-    public static void registerModelLocation(final BaseBlock block) {
+    public static void registerModelLocation(final BlockWrapper block) {
         final ModelResourceLocation blockLocation = getModelLocation(block, false);
 
         ModelLoader.setCustomModelResourceLocation(block.getItemBlock(), 0, getModelLocation(block, true));
@@ -62,7 +63,7 @@ public final class RegistryHelper {
     }
 
     @SideOnly(Side.CLIENT)
-    public static ModelResourceLocation getModelLocation(final BaseBlock block, final boolean isItem) {
+    public static ModelResourceLocation getModelLocation(final BlockWrapper block, final boolean isItem) {
         final String meta;
 
         if (isItem) {
@@ -71,6 +72,6 @@ public final class RegistryHelper {
             meta = "normal";
         }
 
-        return new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID, block.getRegisterName()), meta);
+        return new ModelResourceLocation(new ResourceLocation(Constants.MOD_ID, block.getName()), meta);
     }
 }

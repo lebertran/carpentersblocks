@@ -26,6 +26,9 @@ import tk.eichler.carpentersblocks.eventhandler.InteractionHandler;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+/**
+ * Registers custom event handlers in the default {@link net.minecraftforge.fml.common.eventhandler.EventBus}.
+ */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class EventHandlerRegistry implements BaseRegistry {
@@ -49,7 +52,6 @@ public class EventHandlerRegistry implements BaseRegistry {
 
     @Override
     public void onInit() {
-        EVENT_HANDLERS.stream()
-                .forEach(MinecraftForge.EVENT_BUS::register);
+        EVENT_HANDLERS.stream().forEach(MinecraftForge.EVENT_BUS::register);
     }
 }
