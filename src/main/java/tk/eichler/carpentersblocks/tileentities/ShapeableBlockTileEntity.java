@@ -18,7 +18,10 @@
 package tk.eichler.carpentersblocks.tileentities;
 
 import mcp.MethodsReturnNonnullByDefault;
-import tk.eichler.carpentersblocks.data.*;
+import tk.eichler.carpentersblocks.data.ShapeableData;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;

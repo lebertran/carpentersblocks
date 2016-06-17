@@ -28,12 +28,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import tk.eichler.carpentersblocks.blocks.*;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.data.Properties;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.model.BaseModel;
 import tk.eichler.carpentersblocks.model.CarpentersSlopeModel;
 import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
@@ -123,15 +122,7 @@ public final class BlockSlope extends BlockWrapper<BlockSlope> implements BaseBl
 
     @Override
     public IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        IExtendedBlockState newState = (IExtendedBlockState) state;
-
-        newState = newState.withProperty(Properties.COVER_DATA, BlockDataHelper.getCoverData(state, world, pos));
-        newState = (IExtendedBlockState) newState.withProperty(Properties.SHAPE,
-                BlockDataHelper.getShape(state, world, pos, EnumShape.FULL_BLOCK));
-        newState = (IExtendedBlockState) newState.withProperty(Properties.ORIENTATION,
-                BlockDataHelper.getOrientation(state, world, pos, EnumOrientation.DOWN));
-
-        return newState;
+        return BlockDataHelper.createDefaultExtendedState(state, world, pos);
     }
 
     @Override

@@ -19,7 +19,8 @@ package tk.eichler.carpentersblocks.model;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
-import tk.eichler.carpentersblocks.model.helper.*;
+import tk.eichler.carpentersblocks.model.helper.Polygon;
+import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

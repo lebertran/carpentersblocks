@@ -26,13 +26,16 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.FMLLog;
-import tk.eichler.carpentersblocks.blocks.*;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.data.Properties;
+import tk.eichler.carpentersblocks.blocks.BaseBlock;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
+import tk.eichler.carpentersblocks.blocks.BlockCoverable;
+import tk.eichler.carpentersblocks.blocks.BlockShapeable;
+import tk.eichler.carpentersblocks.blocks.BlockDataHelper;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.model.BaseModel;
 import tk.eichler.carpentersblocks.model.CarpentersBlockModel;
 import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
@@ -90,18 +93,9 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
         };
     }
 
-    @Override //@todo move to helper class
+    @Override
     public IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        IExtendedBlockState newState = (IExtendedBlockState) state;
-
-        newState = newState.withProperty(Properties.COVER_DATA, BlockDataHelper.getCoverData(state, world, pos));
-        newState = (IExtendedBlockState) newState.withProperty(Properties.SHAPE,
-                BlockDataHelper.getShape(state, world, pos, EnumShape.FULL_BLOCK));
-        newState = (IExtendedBlockState) newState.withProperty(Properties.ORIENTATION,
-                BlockDataHelper.getOrientation(state, world, pos, EnumOrientation.DOWN));
-
-        return newState;
-
+        return BlockDataHelper.createDefaultExtendedState(state, world, pos);
     }
 
     @Override
@@ -147,6 +141,8 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
         return collisionBox;
     }
 
+
+
     @Override
     public void onCarpentersHammerLeftClick(final World world, final BlockPos pos, final EnumFacing facing) {
         final IBlockState state = world.getBlockState(pos);
@@ -159,7 +155,6 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
                         EnumShape.SLAB.getNextOrientation(BlockDataHelper.getOrientation(state, world, pos, EnumOrientation.UP)));
             }
         }
-
     }
 
     @Override
@@ -181,7 +176,7 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
     }
 
     @Override
-    public boolean isFaceRendered(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+    public boolean isFaceRendered(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face) {
         return false;
     }
 }

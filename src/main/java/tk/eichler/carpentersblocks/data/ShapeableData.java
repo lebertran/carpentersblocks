@@ -20,6 +20,8 @@ package tk.eichler.carpentersblocks.data;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;

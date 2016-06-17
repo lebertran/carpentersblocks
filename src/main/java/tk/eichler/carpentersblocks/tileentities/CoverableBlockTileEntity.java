@@ -22,7 +22,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataUpdateListener;
-import tk.eichler.carpentersblocks.data.Properties;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;

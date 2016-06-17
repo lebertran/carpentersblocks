@@ -19,7 +19,7 @@ package tk.eichler.carpentersblocks.registry;
 
 import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
-import tk.eichler.carpentersblocks.blocks.*;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 import tk.eichler.carpentersblocks.blocks.variants.BlockCuboid;
 import tk.eichler.carpentersblocks.blocks.variants.BlockSlope;
 import tk.eichler.carpentersblocks.registry.helper.RegistryHelper;

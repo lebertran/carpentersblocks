@@ -15,21 +15,22 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.data;
+package tk.eichler.carpentersblocks.data.properties;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import tk.eichler.carpentersblocks.data.CoverableData;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public final class DataProperty<T extends CoverableData> implements IUnlistedProperty<T> {
+final class DataProperty<T extends CoverableData> implements IUnlistedProperty<T> {
 
     private static final String NAME = "DataProperty";
     private final Class<T> clazz;
 
-    public DataProperty(final Class<T> clazz) {
+    DataProperty(final Class<T> clazz) {
         this.clazz = clazz;
     }
 

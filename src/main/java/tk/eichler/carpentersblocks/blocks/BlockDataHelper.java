@@ -28,9 +28,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.FMLLog;
 import tk.eichler.carpentersblocks.data.CoverableData;
-import tk.eichler.carpentersblocks.data.EnumOrientation;
-import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.data.Properties;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.tileentities.CoverableBlockTileEntity;
 import tk.eichler.carpentersblocks.tileentities.ShapeableBlockTileEntity;
 
@@ -174,5 +174,25 @@ public final class BlockDataHelper {
         } else {
             return EnumOrientation.get(facing.getOpposite(), null);
         }
+    }
+
+    /**
+     * Creates an {@link IExtendedBlockState} with cover data, shape and orientation.
+     *
+     * @param state Current IBlockState
+     * @param world Current world
+     * @param pos Current block position
+     * @return An extended block state with cover, shape and orientation data.
+     */
+    public static IExtendedBlockState createDefaultExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+        IExtendedBlockState newState = (IExtendedBlockState) state;
+
+        newState = newState.withProperty(Properties.COVER_DATA, getCoverData(state, world, pos));
+        newState = (IExtendedBlockState) newState.withProperty(Properties.SHAPE,
+                getShape(state, world, pos, EnumShape.FULL_BLOCK));
+        newState = (IExtendedBlockState) newState.withProperty(Properties.ORIENTATION,
+                getOrientation(state, world, pos, EnumOrientation.DOWN));
+
+        return newState;
     }
 }

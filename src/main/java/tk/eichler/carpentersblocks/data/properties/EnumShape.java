@@ -15,7 +15,7 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.data;
+package tk.eichler.carpentersblocks.data.properties;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.IStringSerializable;

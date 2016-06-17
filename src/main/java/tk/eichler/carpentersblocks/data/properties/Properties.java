@@ -15,9 +15,10 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package tk.eichler.carpentersblocks.data;
+package tk.eichler.carpentersblocks.data.properties;
 
 import net.minecraft.block.properties.PropertyEnum;
+import tk.eichler.carpentersblocks.data.CoverableData;
 
 public final class Properties {
     private Properties() {

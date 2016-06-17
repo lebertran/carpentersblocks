@@ -32,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 /**
  * Carpenter's Block mod entry point.
  *
- * Invokes preInit, init and postInit in the appropriate proxies.
+ * Invokes preInit, init and postInit in the appropriate proxy.
  */
 @SuppressWarnings("unused")
 @MethodsReturnNonnullByDefault

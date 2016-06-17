@@ -21,11 +21,13 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
-import tk.eichler.carpentersblocks.data.EnumShape;
-import tk.eichler.carpentersblocks.model.helper.*;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.model.helper.BakedQuadBuilder;
+import tk.eichler.carpentersblocks.model.helper.Polygon;
+import tk.eichler.carpentersblocks.model.helper.Transformation;
+import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
 import java.util.Map;
 
 import static tk.eichler.carpentersblocks.model.helper.EnumCoordinates.*;

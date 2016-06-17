@@ -23,7 +23,10 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import tk.eichler.carpentersblocks.data.*;
+import tk.eichler.carpentersblocks.data.CoverableData;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
+import tk.eichler.carpentersblocks.data.properties.EnumShape;
+import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.model.texture.TextureMapPool;
 import tk.eichler.carpentersblocks.registry.TextureRegistry;
 
