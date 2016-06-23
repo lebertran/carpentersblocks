@@ -40,19 +40,31 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public class CarpentersSlopeModel extends BaseModel {
 
-    private CoverableData coverData = CoverableData.createInstance();
-    private EnumShape shape = EnumShape.WEST_SLOPE; //@todo migrate (*)_SLOPE to EnumOrientation
-    private EnumOrientation orientation = EnumOrientation.NORTH;
-
     @Override
     public List<BakedQuad> getQuads(@Nullable final IBlockState state, @Nullable final EnumFacing side, final long rand) {
         final List<BakedQuad> ret = new ArrayList<>();
 
-        getDataFromState(state);
+        CoverableData coverData = CoverableData.createInstance();
+        EnumShape shape = EnumShape.SLOPE;
+        EnumOrientation orientation = EnumOrientation.NORTH_DOWN;
 
-        Map<EnumFacing, TextureAtlasSprite> textureMap;
+        // noinspection ConstantConditions
+        if (state != null || state instanceof IExtendedBlockState) {
+            final IExtendedBlockState eState = (IExtendedBlockState) state;
 
-        if (state != null && this.coverData.hasCover()) {
+            coverData = eState.getValue(Properties.COVER_DATA);
+            shape = state.getValue(Properties.SHAPE);
+            orientation = state.getValue(Properties.ORIENTATION);
+
+            if (coverData == null) {
+                coverData = CoverableData.createInstance();
+            }
+        }
+
+
+        final Map<EnumFacing, TextureAtlasSprite> textureMap;
+
+        if (state != null && coverData.hasCover()) {
             TextureMapPool.getInstance().addTextureMap(coverData, state);
             textureMap = TextureMapPool.getInstance().getTextureMap(coverData.getBlockId());
         } else {
@@ -60,23 +72,12 @@ public class CarpentersSlopeModel extends BaseModel {
         }
 
         for (final EnumFacing face : EnumFacing.values()) {
-            ret.add(CarpentersSlopeModelData.getBakedQuad(face, shape, textureMap));
+            ret.add(CarpentersSlopeModelData.getBakedQuad(face, shape, orientation, textureMap));
         }
 
         return ret;
     }
 
-    public void getDataFromState(@Nullable final IBlockState state) {
-        if (state == null || !(state instanceof IExtendedBlockState)) {
-            return;
-        }
-
-        final IExtendedBlockState eState = (IExtendedBlockState) state;
-
-        this.coverData = eState.getValue(Properties.COVER_DATA);
-        this.shape = state.getValue(Properties.SHAPE);
-        this.orientation = state.getValue(Properties.ORIENTATION);
-    }
 
     @Override
     public TextureAtlasSprite getParticleTexture() {

@@ -21,6 +21,7 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.statemap.StateMapperBase;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -47,6 +48,13 @@ public final class RegistryHelper {
     public static void registerTileEntity(final BlockWrapper block) {
         GameRegistry.registerTileEntity(block.createTileEntity().getClass(),
                 block.getName() + ":tile_entity");
+    }
+
+    public static ItemBlock createItemBlock(final BlockWrapper wrapper) {
+        final ItemBlock itemBlock = new ItemBlock(wrapper);
+        itemBlock.setRegistryName(wrapper.getRegistryName());
+        itemBlock.setUnlocalizedName(wrapper.getUnlocalizedName());
+        return itemBlock;
     }
 
     @SideOnly(Side.CLIENT)

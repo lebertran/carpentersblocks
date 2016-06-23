@@ -50,7 +50,7 @@ public final class BaseModelData {
     private static final Polygon POLYGON_SIDE_NORTH = POLYGON_SIDE_SOUTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_180);
 
 
-    static Polygon getFullPolygon(final EnumFacing facing) {
+    public static Polygon getFullPolygon(final EnumFacing facing) {
         switch (facing) {
             case UP:
                 return POLYGON_UP;

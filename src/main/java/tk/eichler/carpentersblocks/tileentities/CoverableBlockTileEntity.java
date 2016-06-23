@@ -20,35 +20,36 @@ package tk.eichler.carpentersblocks.tileentities;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import tk.eichler.carpentersblocks.data.CoverableData;
 import tk.eichler.carpentersblocks.data.DataUpdateListener;
-import tk.eichler.carpentersblocks.data.properties.Properties;
-import tk.eichler.carpentersblocks.util.BlockHelper;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class CoverableBlockTileEntity extends BaseStateTileEntity<CoverableData> implements DataUpdateListener {
+public abstract class CoverableBlockTileEntity extends BaseStateTileEntity implements DataUpdateListener {
 
     @Override
     public abstract CoverableData getDataInstance();
 
-    public boolean trySetBlockStack(final ItemStack stack) {
+    public boolean setBlockStack(@Nullable final ItemStack stack, final EnumFacing coverFacing) {
 
-        if (stack.isItemEqual(this.getDataInstance().getItemStack())) {
+        if (stack == null) {
+            // Use removeBlockStack() instead.
             return false;
         }
 
-        if (BlockHelper.isValidCoverBlock(stack)) {
-            if (worldObj == null || !worldObj.isRemote) {
-                this.getDataInstance().setItemStack(stack);
-                this.getDataInstance().checkForChanges();
+        if (worldObj == null || !worldObj.isRemote) {
+            final boolean stackSuccess = this.getDataInstance().setItemStack(stack);
+            final boolean coverSuccess = this.getDataInstance().setCoverFacing(coverFacing);
+            this.getDataInstance().checkForChanges();
+
+            if (stackSuccess || coverSuccess) {
+                return true;
             }
-
-            return true;
         }
-
 
         return false;
     }
@@ -89,13 +90,6 @@ public abstract class CoverableBlockTileEntity extends BaseStateTileEntity<Cover
         super.writeToNBT(compound);
         this.getDataInstance().toNBT(compound);
         return compound;
-    }
-
-    @Override
-    public void onDataUpdate() {
-        updateState(Properties.COVER_DATA, getDataInstance());
-
-        triggerStateUpdate();
     }
 
 }

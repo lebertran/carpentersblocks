@@ -33,7 +33,9 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public class EventHandlerRegistry implements BaseRegistry {
 
-    private static final List<EventHandler> EVENT_HANDLERS = ImmutableList.of(InteractionHandler.getInstance());
+    private static final List<EventHandler> EVENT_HANDLERS = ImmutableList.of(
+            InteractionHandler.getInstance()
+    );
 
     private static EventHandlerRegistry instance;
 
@@ -52,6 +54,8 @@ public class EventHandlerRegistry implements BaseRegistry {
 
     @Override
     public void onInit() {
-        EVENT_HANDLERS.stream().forEach(MinecraftForge.EVENT_BUS::register);
+        for (final EventHandler eventHandler : EVENT_HANDLERS) {
+            MinecraftForge.EVENT_BUS.register(eventHandler);
+        }
     }
 }

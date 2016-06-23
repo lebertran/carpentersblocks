@@ -17,55 +17,59 @@
 
 package tk.eichler.carpentersblocks.data.properties;
 
+import com.google.common.collect.ImmutableList;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.IStringSerializable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.text.MessageFormat;
+import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public enum EnumShape implements IStringSerializable {
-    FULL_BLOCK("full_block"),
+    FULL_BLOCK("full_block", EnumOrientation.values()),
     SLAB("slab", EnumOrientation.UP, EnumOrientation.DOWN,
             EnumOrientation.WEST, EnumOrientation.EAST, EnumOrientation.SOUTH, EnumOrientation.NORTH),
 
-    SLOPE("slope", EnumOrientation.ALL_UP_DOWN),
-    NORTH_SLOPE("north_slope"),
-    WEST_SLOPE("west_slope"),
-    EAST_SLOPE("east_slope"),
-    SOUTH_SLOPE("south_slope"),
-
-    NORTH_TOP_SLOPE("north_top_slope"),
-    SOUTH_TOP_SLOPE("south_top_slope"),
-    WEST_TOP_SLOPE("west_top_slope"),
-    EAST_TOP_SLOPE("east_top_slope");
+    SLOPE("slope", EnumOrientation.ALL_UP_DOWN);
 
     private final String name;
 
-    private EnumOrientation[] validOrientations;
+    private List<EnumOrientation> validOrientations;
 
     EnumShape(final String name, final EnumOrientation... validOrientations) {
+        if (validOrientations.length <= 0) {
+            throw new IllegalArgumentException(MessageFormat.format("EnumShape {0} has no valid orientations.", name));
+        }
+
         this.name = name;
-
-        this.validOrientations = validOrientations;
-
+        this.validOrientations = ImmutableList.copyOf(validOrientations);
     }
 
     public EnumOrientation getNextOrientation(final EnumOrientation current) {
-        for (int i = 0; i < validOrientations.length; i++) {
-            if (validOrientations[i] == current) {
+        for (int i = 0; i < validOrientations.size(); i++) {
+            if (validOrientations.get(i) == current) {
 
-                if (i + 1 >= validOrientations.length) {
-                    return validOrientations[0];
+                if (i + 1 >= validOrientations.size()) {
+                    return validOrientations.get(0);
                 }
 
-                return validOrientations[i + 1];
+                return validOrientations.get(i + 1);
 
             }
         }
 
         throw new IllegalArgumentException("Given orientation is not a valid orientation");
+    }
+
+    public boolean isOrientationValid(final EnumOrientation orientation) {
+        return this.validOrientations.contains(orientation);
+    }
+
+    public List<EnumOrientation> getValidOrientations() {
+        return this.validOrientations;
     }
 
     @Override

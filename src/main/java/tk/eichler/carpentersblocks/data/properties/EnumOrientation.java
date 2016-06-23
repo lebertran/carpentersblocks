@@ -17,14 +17,17 @@
 
 package tk.eichler.carpentersblocks.data.properties;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IStringSerializable;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.MessageFormat;
 
-
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public enum EnumOrientation implements IStringSerializable {
     UP("up", null, EnumFacing.UP),
     NORTH_UP("north_up", EnumFacing.NORTH, EnumFacing.UP),
@@ -66,6 +69,24 @@ public enum EnumOrientation implements IStringSerializable {
 
         this.horizontal = horizontal;
         this.vertical = vertical;
+    }
+
+    public static EnumOrientation getOrientationFromFacing(final EnumFacing facing) {
+        if (facing.getAxis() == EnumFacing.Axis.Y) {
+            return get(null, facing.getOpposite());
+        } else {
+            return get(facing.getOpposite(), null);
+        }
+    }
+
+    @Nullable
+    public EnumFacing getVertical() {
+        return this.vertical;
+    }
+
+    @Nullable
+    public EnumFacing getHorizontal() {
+        return this.horizontal;
     }
 
     private static boolean isVertical(@Nonnull final EnumFacing facing) {

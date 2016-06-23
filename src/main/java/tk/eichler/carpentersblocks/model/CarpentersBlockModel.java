@@ -40,24 +40,23 @@ import java.util.Map;
 @MethodsReturnNonnullByDefault
 public class CarpentersBlockModel extends BaseModel {
 
-
     @Override
     public List<BakedQuad> getQuads(@Nullable final IBlockState state,
                                     @Nullable final EnumFacing facing, final long rand) {
         final List<BakedQuad> quads = new ArrayList<>();
 
-        final EnumShape enumShape;
-        final EnumOrientation enumOrientation;
-        CoverableData coverData;
+        CoverableData coverData = CoverableData.createInstance();
+        EnumShape shape = EnumShape.FULL_BLOCK;
+        EnumOrientation orientation = EnumOrientation.DOWN;
 
-        if (state == null || !(state instanceof IExtendedBlockState)) {
-            enumShape = EnumShape.FULL_BLOCK;
-            enumOrientation = EnumOrientation.DOWN;
-            coverData = CoverableData.createInstance();
-        } else {
-            enumShape = state.getValue(Properties.SHAPE);
-            enumOrientation = state.getValue(Properties.ORIENTATION);
-            coverData = ((IExtendedBlockState) state).getValue(Properties.COVER_DATA);
+        // noinspection ConstantConditions
+        if (state != null || state instanceof IExtendedBlockState) {
+            final IExtendedBlockState eState = (IExtendedBlockState) state;
+
+            coverData = eState.getValue(Properties.COVER_DATA);
+            shape = state.getValue(Properties.SHAPE);
+            orientation = state.getValue(Properties.ORIENTATION);
+
             if (coverData == null) {
                 coverData = CoverableData.createInstance();
             }
@@ -65,7 +64,7 @@ public class CarpentersBlockModel extends BaseModel {
 
         final Map<EnumFacing, TextureAtlasSprite> textureMap;
 
-        if (coverData.hasCover() && state != null) {
+        if (state != null && coverData.hasCover()) {
             TextureMapPool.getInstance().addTextureMap(coverData, state);
             textureMap = TextureMapPool.getInstance().getTextureMap(coverData.getBlockId());
         } else {
@@ -73,12 +72,11 @@ public class CarpentersBlockModel extends BaseModel {
         }
 
         for (final EnumFacing f : EnumFacing.values()) {
-            quads.add(CarpentersBlockModelData.createQuad(enumShape, enumOrientation, f, textureMap));
+            quads.add(CarpentersBlockModelData.createQuad(shape, orientation, coverData.getCoverFacing(), f, textureMap));
         }
 
         return quads;
     }
-
 
     @Override
     public TextureAtlasSprite getParticleTexture() {

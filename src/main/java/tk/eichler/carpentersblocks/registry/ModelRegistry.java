@@ -18,8 +18,10 @@
 package tk.eichler.carpentersblocks.registry;
 
 import mcp.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.Item;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -59,8 +61,20 @@ public final class ModelRegistry implements BaseRegistry {
         registerLocations();
     }
 
+    @Override
+    public void onInit() {
+        registerItemRenderer();
+    }
+
+    private void registerItemRenderer() {
+        for (final Item item : ItemRegistry.getItems()) {
+            final ModelResourceLocation res = new ModelResourceLocation(item.getRegistryName().toString(), "inventory");
+            Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, res);
+        }
+    }
+
     private void registerLocations() {
-        for (BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
+        for (final BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
             RegistryHelper.registerModelLocation(block);
         }
     }
@@ -72,7 +86,7 @@ public final class ModelRegistry implements BaseRegistry {
     }
 
     private static void loadModels(final IRegistry<ModelResourceLocation, IBakedModel> modelRegistry) {
-        for (BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
+        for (final BlockWrapper block : BlockRegistry.ALL_BLOCKS) {
             modelRegistry.putObject(RegistryHelper.getModelLocation(block, false), block.getModel());
             modelRegistry.putObject(RegistryHelper.getModelLocation(block, true), block.getModel());
         }

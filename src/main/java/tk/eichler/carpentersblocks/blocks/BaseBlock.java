@@ -28,30 +28,32 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tk.eichler.carpentersblocks.model.BaseModel;
 import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public interface BaseBlock {
+public interface BaseBlock<T extends BaseStateTileEntity> {
     String getName();
 
     BaseStateTileEntity createTileEntity();
 
+    @SideOnly(Side.CLIENT)
     BaseModel getModel();
 
     IProperty[] getProperties();
     IUnlistedProperty[] getUnlistedProperties();
 
-    AxisAlignedBB[] getCollisionBoxes(final IBlockState state, final IBlockAccess world, final BlockPos pos);
-    AxisAlignedBB getMainBoundingBox(final IBlockState state, final IBlockAccess world, final BlockPos pos);
+    AxisAlignedBB[] getCollisionBoxes(@Nullable final T tileEntity);
+    AxisAlignedBB getMainBoundingBox(@Nullable final T tileEntity);
 
     boolean isFaceRendered(final IBlockState state, final IBlockAccess world,
                            final BlockPos pos, final EnumFacing face);
-
-    IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos);
 
     default void setupPlacedBlock(final World world, final BlockPos pos, final IBlockState state, final EntityLivingBase placer, final ItemStack stack) {
     }

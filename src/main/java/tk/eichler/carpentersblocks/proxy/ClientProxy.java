@@ -20,6 +20,7 @@ package tk.eichler.carpentersblocks.proxy;
 import com.google.common.collect.ImmutableList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import tk.eichler.carpentersblocks.registry.BaseRegistry;
 import tk.eichler.carpentersblocks.registry.ModelRegistry;
@@ -43,9 +44,11 @@ public final class ClientProxy extends CommonProxy {
     public void registerRegistries() {
         super.registerRegistries();
 
-        CLIENT_REGISTRIES.stream()
-                .filter(BaseRegistry::receivesEvents)
-                .forEach(MinecraftForge.EVENT_BUS::register);
+        for (final BaseRegistry registry : CLIENT_REGISTRIES) {
+            if (registry.receivesEvents()) {
+                MinecraftForge.EVENT_BUS.register(registry);
+            }
+        }
     }
 
     @Override
@@ -60,5 +63,12 @@ public final class ClientProxy extends CommonProxy {
         super.init(event);
 
         CLIENT_REGISTRIES.forEach(BaseRegistry::onInit);
+    }
+
+    @Override
+    public void postInit(final FMLPostInitializationEvent event) {
+        super.postInit(event);
+
+        CLIENT_REGISTRIES.forEach(BaseRegistry::onPostInit);
     }
 }

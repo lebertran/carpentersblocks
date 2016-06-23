@@ -18,29 +18,35 @@
 package tk.eichler.carpentersblocks.blocks;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import tk.eichler.carpentersblocks.data.CoverableData;
+import tk.eichler.carpentersblocks.tileentities.CoverableBlockTileEntity;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public interface BlockCoverable {
-    default boolean onChangeCover(final World world, final BlockPos pos, ItemStack itemStack, EnumFacing facing) {
-        return BlockDataHelper.setCover(world, pos, itemStack, facing);
-    }
+public interface BlockCoverable<T extends CoverableBlockTileEntity> {
+    default int getCoverLightValue(@Nullable final T tileEntity) {
+        final CoverableData data;
 
-    default void onRemoveCover(final World world, final BlockPos pos) {
-        BlockDataHelper.removeCover(world, pos);
-    }
+        if (tileEntity == null) {
+            data = CoverableData.createInstance();
+        } else {
+            data = tileEntity.getDataInstance();
+        }
 
-    default int getCoverLightValue(final IBlockState state) {
-        return BlockDataHelper.getCoverData(state).getLightValue();
+        return data.getLightValue();
     }
-    default int getCoverLightOpacity(final IBlockState state) {
-        return BlockDataHelper.getCoverData(state).getLightOpacity();
+    default int getCoverLightOpacity(@Nullable final T tileEntity) {
+        final CoverableData data;
+
+        if (tileEntity == null) {
+            data = CoverableData.createInstance();
+        } else {
+            data = tileEntity.getDataInstance();
+        }
+
+        return data.getLightOpacity();
     }
 }

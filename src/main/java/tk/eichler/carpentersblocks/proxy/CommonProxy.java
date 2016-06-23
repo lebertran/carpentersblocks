@@ -25,6 +25,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import tk.eichler.carpentersblocks.registry.BaseRegistry;
 import tk.eichler.carpentersblocks.registry.BlockRegistry;
 import tk.eichler.carpentersblocks.registry.EventHandlerRegistry;
+import tk.eichler.carpentersblocks.registry.ItemRegistry;
 
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class CommonProxy {
      */
     private static final List<BaseRegistry> COMMON_REGISTRIES = ImmutableList.of(
             BlockRegistry.INSTANCE,
+            ItemRegistry.getInstance(),
             EventHandlerRegistry.getInstance()
     );
 
@@ -45,9 +47,11 @@ public class CommonProxy {
      * Register all registries that have custom events in MinecraftForge's EventBus.
      */
     public void registerRegistries() {
-        COMMON_REGISTRIES.stream()
-                .filter(BaseRegistry::receivesEvents)
-                .forEach(MinecraftForge.EVENT_BUS::register);
+        for (final BaseRegistry registry : COMMON_REGISTRIES) {
+            if (registry.receivesEvents()) {
+                MinecraftForge.EVENT_BUS.register(registry);
+            }
+        }
     }
 
     public void preInit(final FMLPreInitializationEvent event) {
@@ -59,5 +63,6 @@ public class CommonProxy {
     }
 
     public void postInit(final FMLPostInitializationEvent event) {
+        COMMON_REGISTRIES.forEach(BaseRegistry::onPostInit);
     }
 }

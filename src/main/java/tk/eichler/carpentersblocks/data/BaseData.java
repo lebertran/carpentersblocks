@@ -29,7 +29,7 @@ public abstract class BaseData {
     private final Set<DataUpdateListener> listeners = new HashSet<>();
     private boolean hasChanged;
 
-    public void setChanged(final boolean changed) {
+    protected void setChanged(final boolean changed) {
         this.hasChanged = changed;
     }
 

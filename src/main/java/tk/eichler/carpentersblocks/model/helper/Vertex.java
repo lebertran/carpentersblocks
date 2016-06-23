@@ -17,8 +17,14 @@
 
 package tk.eichler.carpentersblocks.model.helper;
 
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+@MethodsReturnNonnullByDefault
 public class Vertex {
     private final float x;
     private final float y;
@@ -36,6 +42,10 @@ public class Vertex {
 
     public EnumTexel getTexCorner() {
         return this.corner;
+    }
+
+    public Vec3d getVec3d() {
+        return new Vec3d(this.x, this.y, this.z);
     }
 
     public float getX() {

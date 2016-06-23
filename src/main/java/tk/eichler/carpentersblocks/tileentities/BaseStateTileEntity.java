@@ -29,28 +29,23 @@ import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.common.FMLLog;
 import tk.eichler.carpentersblocks.data.BaseData;
 import tk.eichler.carpentersblocks.data.DataUpdateListener;
+import tk.eichler.carpentersblocks.eventhandler.InteractionEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public abstract class BaseStateTileEntity<D extends BaseData> extends TileEntity implements DataUpdateListener {
+public abstract class BaseStateTileEntity extends TileEntity implements DataUpdateListener {
     private IExtendedBlockState state;
 
-    protected abstract D getDataInstance();
-
-    public void setState(final IExtendedBlockState state) {
-        this.state = state;
-    }
+    protected abstract <T extends BaseData> T getDataInstance();
+    public abstract void handleInteractionEvent(final InteractionEvent event);
 
     <V> void updateState(final IUnlistedProperty<V> property, final V value) {
         if (getState() == null) {
-            FMLLog.severe("State is null, cannot update state");
-
             return;
         }
 
@@ -59,8 +54,6 @@ public abstract class BaseStateTileEntity<D extends BaseData> extends TileEntity
 
     <T extends Comparable<T>, V extends T> void updateState(final IProperty<T> property, final V value) {
         if (getState() == null) {
-            FMLLog.severe("State is null, cannot update state");
-
             return;
         }
 
@@ -88,6 +81,8 @@ public abstract class BaseStateTileEntity<D extends BaseData> extends TileEntity
 
         return state;
     }
+
+    public abstract IExtendedBlockState createBlockState(final IBlockState state);
 
     /**
      * Used by server to communicate changes to client.

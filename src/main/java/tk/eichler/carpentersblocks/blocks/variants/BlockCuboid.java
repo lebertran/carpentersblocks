@@ -18,46 +18,35 @@
 package tk.eichler.carpentersblocks.blocks.variants;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.FMLLog;
-import tk.eichler.carpentersblocks.blocks.BaseBlock;
-import tk.eichler.carpentersblocks.blocks.BlockWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import tk.eichler.carpentersblocks.blocks.BlockCoverable;
 import tk.eichler.carpentersblocks.blocks.BlockShapeable;
-import tk.eichler.carpentersblocks.blocks.BlockDataHelper;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
+import tk.eichler.carpentersblocks.blocks.helpers.CollisionBoxHelper;
 import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
 import tk.eichler.carpentersblocks.data.properties.EnumShape;
-import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.model.BaseModel;
 import tk.eichler.carpentersblocks.model.CarpentersBlockModel;
 import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
-import tk.eichler.carpentersblocks.tileentities.ShapeableBlockTileEntity;
+import tk.eichler.carpentersblocks.tileentities.variants.CuboidTileEntity;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements BaseBlock, BlockCoverable, BlockShapeable {
+public final class BlockCuboid extends BlockWrapper<CuboidTileEntity> implements BlockCoverable<CuboidTileEntity>, BlockShapeable {
 
     private static BlockWrapper instance = new BlockCuboid();
-
-    private static final AxisAlignedBB COLLISION_FULL_BLOCK = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-    private static final AxisAlignedBB COLLISION_SLAB_BOTTOM = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
-    private static final AxisAlignedBB COLLISION_SLAB_TOP = new AxisAlignedBB(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
-
-    private static final AxisAlignedBB COLLISION_SLAB_NORTH = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 0.5D);
-    private static final AxisAlignedBB COLLISION_SLAB_WEST = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.5D, 1.0D, 1.0D);
-    private static final AxisAlignedBB COLLISION_SLAB_SOUTH = new AxisAlignedBB(0.0D, 0.0D, 0.5D, 1.0D, 1.0D, 1.0D);
-    private static final AxisAlignedBB COLLISION_SLAB_EAST = new AxisAlignedBB(0.5D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
-
 
     public static BlockWrapper getInstance() {
         return instance;
@@ -70,10 +59,11 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
 
     @Override
     public BaseStateTileEntity createTileEntity() {
-        return new ShapeableBlockTileEntity();
+        return new CuboidTileEntity();
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public BaseModel getModel() {
         return new CarpentersBlockModel();
     }
@@ -81,94 +71,51 @@ public final class BlockCuboid extends BlockWrapper<BlockCuboid> implements Base
 
     @Override
     public IProperty[] getProperties() {
-        return new IProperty[] {
-                Properties.ORIENTATION, Properties.SHAPE
-        };
+        return CuboidTileEntity.PROPERTIES;
     }
 
     @Override
     public IUnlistedProperty[] getUnlistedProperties() {
-        return new IUnlistedProperty[] {
-                Properties.COVER_DATA
-        };
+        return CuboidTileEntity.UNLISTED_PROPERTIES;
     }
 
-    @Override
-    public IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        return BlockDataHelper.createDefaultExtendedState(state, world, pos);
-    }
+
+
 
     @Override
-    public AxisAlignedBB[] getCollisionBoxes(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+    public AxisAlignedBB[] getCollisionBoxes(@Nullable final CuboidTileEntity tileEntity) {
         return new AxisAlignedBB[] {
-                getMainBoundingBox(state, world, pos)
+                getMainBoundingBox(tileEntity)
         };
     }
 
     @Override
-    public AxisAlignedBB getMainBoundingBox(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        final EnumShape shape = BlockDataHelper.getShape(state, world, pos, EnumShape.FULL_BLOCK);
-        final EnumOrientation orientation = BlockDataHelper.getOrientation(state, world, pos, EnumOrientation.DOWN);
-
-        AxisAlignedBB collisionBox = Block.NULL_AABB;
-        if (shape == EnumShape.FULL_BLOCK) {
-            collisionBox = COLLISION_FULL_BLOCK;
-        } else if (shape == EnumShape.SLAB) {
-            switch (orientation) {
-                case UP:
-                    collisionBox = COLLISION_SLAB_TOP;
-                    break;
-                case DOWN:
-                    collisionBox = COLLISION_SLAB_BOTTOM;
-                    break;
-                case SOUTH:
-                    collisionBox = COLLISION_SLAB_SOUTH;
-                    break;
-                case WEST:
-                    collisionBox = COLLISION_SLAB_WEST;
-                    break;
-                case EAST:
-                    collisionBox = COLLISION_SLAB_EAST;
-                    break;
-                case NORTH:
-                    collisionBox = COLLISION_SLAB_NORTH;
-                    break;
-                default:
-                    FMLLog.severe("Given orientation %s is unknown.", orientation);
-                    break;
-            }
+    public AxisAlignedBB getMainBoundingBox(@Nullable final CuboidTileEntity tileEntity) {
+        if (tileEntity == null) {
+            FMLLog.severe("getMainBoundingBox could not get tile entity.");
+            return FULL_BLOCK_AABB;
         }
+
+        final EnumShape shape = tileEntity.getDataInstance().getShape();
+        final EnumOrientation orientation = tileEntity.getDataInstance().getOrientation();
+
+        final AxisAlignedBB collisionBox;
+
+        switch (shape) {
+            case FULL_BLOCK:
+                collisionBox = CollisionBoxHelper.COLLISION_FULL_BLOCK;
+                break;
+            case SLAB:
+                collisionBox = CollisionBoxHelper.getSlabCollisionBox(orientation);
+                break;
+            default:
+                collisionBox = NULL_AABB;
+                break;
+        }
+
         return collisionBox;
     }
 
-
-
-    @Override
-    public void onCarpentersHammerLeftClick(final World world, final BlockPos pos, final EnumFacing facing) {
-        final IBlockState state = world.getBlockState(pos);
-
-        if (!world.isRemote) {
-            if (BlockDataHelper.getShape(state, world, pos, EnumShape.FULL_BLOCK) != EnumShape.FULL_BLOCK) {
-                BlockDataHelper.setShapeData(world, pos, EnumShape.FULL_BLOCK, null);
-            } else {
-                BlockDataHelper.setShapeData(world, pos, EnumShape.SLAB,
-                        EnumShape.SLAB.getNextOrientation(BlockDataHelper.getOrientation(state, world, pos, EnumOrientation.UP)));
-            }
-        }
-    }
-
-    @Override
-    public void onCarpentersHammerRightClick(final World world, final BlockPos pos, final EnumFacing facing) {
-        final IBlockState state = world.getBlockState(pos);
-
-        if (!world.isRemote) {
-            if (BlockDataHelper.getShape(state, world, pos, EnumShape.FULL_BLOCK) != EnumShape.FULL_BLOCK) {
-                BlockDataHelper.setShapeData(world, pos, EnumShape.FULL_BLOCK, null);
-            } else {
-                BlockDataHelper.setShapeData(world, pos, EnumShape.SLAB, BlockDataHelper.getOrientationFromFacing(facing));
-            }
-        }
-    }
 
     @Override
     public boolean isSideSolid(final IBlockState baseState, final IBlockAccess world, final BlockPos pos, final EnumFacing side) {

@@ -1,3 +1,6 @@
 itemGroup.carpentersblocks=Carpenter's Blocks
 
-tile.carpentersblock.name=Carpenter's Block
+carpentersblocks.tile.cuboid.name=Carpenter's Block
+carpentersblocks.tile.slope.name=Carpenter's Slope
+
+carpentersblocks.item.hammer.name=Carpenter's Hammer

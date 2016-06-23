@@ -28,7 +28,7 @@ public final class CarpentersCreativeTab extends CreativeTabs {
 
     private static CarpentersCreativeTab instance = new CarpentersCreativeTab();
 
-    public CarpentersCreativeTab() {
+    private CarpentersCreativeTab() {
         super(Constants.MOD_ID);
     }
 

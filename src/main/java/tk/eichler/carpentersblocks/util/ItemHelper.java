@@ -18,9 +18,10 @@
 package tk.eichler.carpentersblocks.util;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import tk.eichler.carpentersblocks.item.CarpentersHammerItem;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
@@ -30,7 +31,11 @@ public final class ItemHelper {
         // do not instantiate
     }
 
-    public static boolean isCarpentersHammer(final ItemStack itemStack) {
-        return itemStack.getItem() == Items.STICK; //@todo change to carpenters hammer
+    public static boolean isCarpentersHammer(@Nullable final ItemStack itemStack) {
+        if (itemStack == null) {
+            return false;
+        }
+
+        return itemStack.getItem() == CarpentersHammerItem.get();
     }
 }

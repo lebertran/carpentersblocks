@@ -18,7 +18,6 @@
 package tk.eichler.carpentersblocks.blocks.variants;
 
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -29,31 +28,32 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import tk.eichler.carpentersblocks.blocks.*;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import tk.eichler.carpentersblocks.blocks.BlockCoverable;
+import tk.eichler.carpentersblocks.blocks.BlockShapeable;
+import tk.eichler.carpentersblocks.blocks.BlockWrapper;
+import tk.eichler.carpentersblocks.blocks.helpers.CollisionBoxHelper;
 import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
 import tk.eichler.carpentersblocks.data.properties.EnumShape;
-import tk.eichler.carpentersblocks.data.properties.Properties;
 import tk.eichler.carpentersblocks.model.BaseModel;
 import tk.eichler.carpentersblocks.model.CarpentersSlopeModel;
 import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
-import tk.eichler.carpentersblocks.tileentities.ShapeableBlockTileEntity;
+import tk.eichler.carpentersblocks.tileentities.variants.SlopeTileEntity;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public final class BlockSlope extends BlockWrapper<BlockSlope> implements BaseBlock, BlockCoverable, BlockShapeable {
+public final class BlockSlope extends BlockWrapper<SlopeTileEntity> implements BlockCoverable<SlopeTileEntity>, BlockShapeable {
 
     private static final BlockWrapper INSTANCE = new BlockSlope();
-
-    private static final AxisAlignedBB BOUNDING_BOTTOM_WEST = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.5D, 0.5D, 1.0D);
-    private static final AxisAlignedBB BOUNDING_BOTTOM_EAST = new AxisAlignedBB(0.5D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
-    private static final AxisAlignedBB BOUNDING_BOTTOM_NORTH = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 0.5D);
-    private static final AxisAlignedBB BOUNDING_BOTTOM_SOUTH = new AxisAlignedBB(0.0D, 0.0D, 0.5D, 1.0D, 0.5D, 1.0D);
-
     public static BlockWrapper getInstance() {
         return INSTANCE;
     }
+
 
     @Override
     public String getName() {
@@ -62,56 +62,64 @@ public final class BlockSlope extends BlockWrapper<BlockSlope> implements BaseBl
 
     @Override
     public BaseStateTileEntity createTileEntity() {
-        return new ShapeableBlockTileEntity();
+        return new SlopeTileEntity();
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public BaseModel getModel() {
         return new CarpentersSlopeModel();
     }
 
     @Override
     public IProperty[] getProperties() {
-        return new IProperty[] {
-                Properties.SHAPE, Properties.ORIENTATION
-        };
+        return SlopeTileEntity.PROPERTIES;
     }
 
     @Override
     public IUnlistedProperty[] getUnlistedProperties() {
-        return new IUnlistedProperty[] {
-                Properties.COVER_DATA
-        };
+        return SlopeTileEntity.UNLISTED_PROPERTIES;
     }
 
     @Override
-    public AxisAlignedBB[] getCollisionBoxes(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        final AxisAlignedBB boundingBox;
-
-        switch (BlockDataHelper.getShape(state, world, pos, EnumShape.NORTH_SLOPE)) {
-            case NORTH_SLOPE:
-                boundingBox = BOUNDING_BOTTOM_NORTH;
-                break;
-            case WEST_SLOPE:
-                boundingBox = BOUNDING_BOTTOM_WEST;
-                break;
-            case EAST_SLOPE:
-                boundingBox = BOUNDING_BOTTOM_EAST;
-                break;
-            case SOUTH_SLOPE:
-                boundingBox = BOUNDING_BOTTOM_SOUTH;
-                break;
-            default:
-                boundingBox = Block.NULL_AABB;
+    public AxisAlignedBB[] getCollisionBoxes(@Nullable final SlopeTileEntity tileEntity) {
+        if (tileEntity == null) {
+            FMLLog.severe("TileEntity is null.");
+            return new AxisAlignedBB[] {FULL_BLOCK_AABB};
         }
 
+        final EnumOrientation orientation = tileEntity.getDataInstance().getOrientation();
+
+        final AxisAlignedBB mainBox = getMainBoundingBox(tileEntity);
+        final AxisAlignedBB quarterBox = CollisionBoxHelper.getQuarterStairs(orientation);
+
         return new AxisAlignedBB[] {
-                boundingBox
-        };
+                mainBox, quarterBox
+        };    }
+
+    @Override
+    public AxisAlignedBB getMainBoundingBox(@Nullable final SlopeTileEntity tileEntity) {
+        if (tileEntity == null) {
+            FMLLog.severe("TileEntity is null.");
+            return FULL_BLOCK_AABB;
+        }
+
+        final EnumShape shape = tileEntity.getDataInstance().getShape();
+        final EnumOrientation orientation = tileEntity.getDataInstance().getOrientation();
+
+        if (shape == EnumShape.SLOPE) {
+            if (orientation.getVertical() == EnumFacing.UP) {
+                return CollisionBoxHelper.COLLISION_SLAB_TOP;
+            } else {
+                return CollisionBoxHelper.COLLISION_SLAB_BOTTOM;
+            }
+        }
+
+        return FULL_BLOCK_AABB;
     }
 
     @Override
-    public AxisAlignedBB getMainBoundingBox(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
+    public AxisAlignedBB getSelectedBoundingBox(final IBlockState state, final World worldIn, final BlockPos pos) {
         return FULL_BLOCK_AABB;
     }
 
@@ -121,42 +129,31 @@ public final class BlockSlope extends BlockWrapper<BlockSlope> implements BaseBl
     }
 
     @Override
-    public IBlockState createExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        return BlockDataHelper.createDefaultExtendedState(state, world, pos);
-    }
-
-    @Override
     public void setupPlacedBlock(final World world, final BlockPos pos, final IBlockState state,
                                  final EntityLivingBase placer, final ItemStack stack) {
-        final EnumShape shape;
+        final EnumShape shape = EnumShape.SLOPE;
+        final EnumOrientation orientation;
         switch (placer.getHorizontalFacing()) {
             case NORTH:
-                shape = EnumShape.SOUTH_SLOPE;
+                orientation = EnumOrientation.SOUTH_DOWN;
                 break;
             case SOUTH:
-                shape = EnumShape.NORTH_SLOPE;
+                orientation = EnumOrientation.NORTH_DOWN;
                 break;
             case WEST:
-                shape = EnumShape.EAST_SLOPE;
+                orientation = EnumOrientation.EAST_DOWN;
                 break;
             case EAST:
-                shape = EnumShape.WEST_SLOPE;
+                orientation = EnumOrientation.WEST_DOWN;
                 break;
             default:
                 throw new UnsupportedOperationException("Invalid facing.");
         }
 
-        BlockDataHelper.setShapeData(world, pos, shape, EnumOrientation.NORTH);
-    }
-
-    @Override
-    public void onCarpentersHammerLeftClick(final World world, final BlockPos pos, final EnumFacing facing) {
-        //@TODO: implement
-    }
-
-    @Override
-    public void onCarpentersHammerRightClick(final World world, final BlockPos pos, final EnumFacing facing) {
-        //@TODO: implement
+        final SlopeTileEntity tileEntity = getTileEntity(world, pos);
+        if (tileEntity != null) {
+            tileEntity.setShapeableData(shape, orientation);
+        }
     }
 
     @Override

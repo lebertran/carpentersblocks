@@ -21,6 +21,7 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import tk.eichler.carpentersblocks.Constants;
 import tk.eichler.carpentersblocks.util.BlockHelper;
 
@@ -31,33 +32,53 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 public class CoverableData extends BaseData {
     private static final String NBT_BLOCK_STACK = "BlockStack";
+    private static final String NBT_COVER_FACING = "CoverFacing";
 
     private ItemStack itemStack;
     private Block coveringBlock = null;
+    private EnumFacing coverFacing;
 
-    public CoverableData(@Nullable final ItemStack itemStack) {
+
+    public CoverableData(@Nullable final ItemStack itemStack, final EnumFacing coverFacing) {
         this.setItemStack(itemStack);
+        this.setCoverFacing(coverFacing);
     }
 
     public boolean hasCover() {
         return (this.itemStack != null) && (this.coveringBlock != null);
     }
 
-    public void setItemStack(@Nullable final ItemStack itemStack) {
+    public boolean setCoverFacing(final EnumFacing facing) {
+        if (this.coverFacing != facing) {
+            this.coverFacing = facing;
+            setChanged(true);
+            return true;
+        }
+
+        return false;
+    }
+
+    public EnumFacing getCoverFacing() {
+        return this.coverFacing;
+    }
+
+    public boolean setItemStack(@Nullable final ItemStack itemStack) {
         if ((this.itemStack == null) && (itemStack == null)) {
-            return;
+            return false;
         }
         if ((this.itemStack != null) && (this.itemStack.isItemEqual(itemStack))) {
-            return;
+            return false;
         }
 
-        this.itemStack = itemStack;
-
-        if (itemStack != null) {
+        if (BlockHelper.isValidCoverBlock(itemStack)) {
+            this.itemStack = itemStack;
             this.coveringBlock = BlockHelper.getBlockFromItemStack(itemStack);
+
+            setChanged(true);
+            return true;
         }
 
-        setChanged(true);
+        return false;
     }
 
     public String getBlockId() {
@@ -70,8 +91,10 @@ public class CoverableData extends BaseData {
 
     public void fromNBT(final NBTTagCompound nbt) {
         final ItemStack stack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag(NBT_BLOCK_STACK));
+        final EnumFacing facing = EnumFacing.valueOf(nbt.getString(NBT_COVER_FACING));
 
         setItemStack(stack);
+        setCoverFacing(facing);
     }
 
     public void toNBT(final NBTTagCompound nbt) {
@@ -80,6 +103,8 @@ public class CoverableData extends BaseData {
             itemStack.writeToNBT(itemStackCompound);
             nbt.setTag(NBT_BLOCK_STACK, itemStackCompound);
         }
+
+        nbt.setString(NBT_COVER_FACING, getCoverFacing().name());
     }
 
     @Nullable
@@ -111,6 +136,6 @@ public class CoverableData extends BaseData {
     }
 
     public static CoverableData createInstance() {
-        return new CoverableData(null);
+        return new CoverableData(null, EnumFacing.NORTH);
     }
 }

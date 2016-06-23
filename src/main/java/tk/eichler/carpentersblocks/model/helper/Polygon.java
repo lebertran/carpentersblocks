@@ -65,7 +65,7 @@ public class Polygon {
      * Returns an immutable copy of the vertices of the current polygon.
      * @return immutable list of vertices.
      */
-    List<Vertex> getVertices() {
+    public List<Vertex> getVertices() {
         return ImmutableList.copyOf(this.vertices);
     }
 

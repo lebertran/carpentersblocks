@@ -15,18 +15,13 @@
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Carpenter's Blocks
- */
-
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        mavenCentral()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
@@ -34,19 +29,17 @@ buildscript {
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
 
-//noinspection GroovyUnusedAssignment
+
 sourceCompatibility = JavaVersion.VERSION_1_8
-//noinspection GroovyUnusedAssignment
 targetCompatibility = JavaVersion.VERSION_1_8
 
 ext.configFile = file('build.properties')
-//noinspection GroovyAssignabilityCheck
 ext.config = parseConfig(configFile)
 
 version = config.version
-group="tk.eichler.carpentersblocks"
-//noinspection GroovyUnusedAssignment
+group="tk.java.eichler.carpentersblocks"
 archivesBaseName = "${config.mod_id}"
 
 minecraft {
@@ -56,13 +49,16 @@ minecraft {
     mappings = config.mc_mappings
 
     replace 'PROP:VERSION', config.version
-
     replaceIn 'Constants.java'
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
     //deobfCompile "mcp.mobius.waila:Waila:1.7.0-B3_1.9.4"
-
+    testCompile 'junit:junit:4.12'
 }
 
 //noinspection GroovyAssignabilityCheck

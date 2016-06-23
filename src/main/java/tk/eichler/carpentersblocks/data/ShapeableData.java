@@ -20,6 +20,8 @@ package tk.eichler.carpentersblocks.data;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.common.FMLLog;
 import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
 import tk.eichler.carpentersblocks.data.properties.EnumShape;
 
@@ -36,8 +38,9 @@ public class ShapeableData extends CoverableData {
     private EnumShape shape;
     private EnumOrientation orientation;
 
-    public ShapeableData(@Nullable final ItemStack itemStack, final EnumShape shape, final EnumOrientation orientation) {
-        super(itemStack);
+    public ShapeableData(@Nullable final ItemStack itemStack, final EnumFacing coverFacing,
+                         final EnumShape shape, final EnumOrientation orientation) {
+        super(itemStack, coverFacing);
 
         this.shape = shape;
         this.orientation = orientation;
@@ -47,8 +50,10 @@ public class ShapeableData extends CoverableData {
     public void fromNBT(final NBTTagCompound nbt) {
         super.fromNBT(nbt);
 
-        setShape(EnumShape.valueOf(nbt.getString(NBT_SHAPE)));
-        setOrientation(EnumOrientation.valueOf(nbt.getString(NBT_ORIENTATION)));
+        setShapeData(
+                EnumShape.valueOf(nbt.getString(NBT_SHAPE)),
+                EnumOrientation.valueOf(nbt.getString(NBT_ORIENTATION))
+        );
     }
 
     @Override
@@ -59,20 +64,29 @@ public class ShapeableData extends CoverableData {
         nbt.setString(NBT_ORIENTATION, orientation.name());
     }
 
-    public void setShape(final EnumShape shape) {
-        if (this.shape != shape) {
-            this.shape = shape;
-            setChanged(true);
-        }
-    }
+    public boolean setShapeData(@Nullable final EnumShape shape, @Nullable final EnumOrientation orientation) {
+        if (this.shape != shape || this.orientation != orientation) {
 
-    public void setOrientation(final EnumOrientation orientation) {
-        if (this.orientation != orientation) {
-            this.orientation = orientation;
-            setChanged(true);
-        }
-    }
+            if (shape != null) {
+                this.shape = shape;
+            }
 
+            if (orientation != null) {
+                this.orientation = orientation;
+
+            }
+
+            if (!this.shape.isOrientationValid(this.orientation)) {
+                FMLLog.severe("Invalid orientation %s for shape %s.", orientation, shape);
+                this.orientation = this.shape.getValidOrientations().get(0);
+            }
+
+            setChanged(true);
+
+            return true;
+        }
+        return false;
+    }
     public EnumShape getShape() {
         return this.shape;
     }
@@ -82,7 +96,7 @@ public class ShapeableData extends CoverableData {
     }
 
     public static ShapeableData createInstance() {
-        return new ShapeableData(null, EnumShape.FULL_BLOCK, EnumOrientation.UP);
+        return new ShapeableData(null, EnumFacing.NORTH, EnumShape.FULL_BLOCK, EnumOrientation.UP);
     }
 
 }

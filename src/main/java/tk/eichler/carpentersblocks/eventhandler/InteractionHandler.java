@@ -23,6 +23,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import tk.eichler.carpentersblocks.blocks.BlockWrapper;
+import tk.eichler.carpentersblocks.tileentities.BaseStateTileEntity;
+import tk.eichler.carpentersblocks.util.BlockHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -41,37 +43,39 @@ public class InteractionHandler implements EventHandler {
         return instance;
     }
 
-    // @workaround: onLeftClickEvent is triggered multiple times. Until this is fixed, we have to do the following:
-    private boolean hasTriggered = false;
-
     @SubscribeEvent
     public void onLeftClickEvent(final PlayerInteractEvent.LeftClickBlock event) {
         if (event.getHand() == EnumHand.OFF_HAND || event.isCanceled()) {
             return;
         }
+        final InteractionEvent interactionEvent = InteractionEvent.createEvent(event);
 
-        if (!hasTriggered) {
-            final Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
-            if (block instanceof BlockWrapper) {
-                ((BlockWrapper) block).onLeftClickEvent(event);
-            }
-
-            hasTriggered = true;
-        } else {
-            hasTriggered = false;
-        }
+        handleEvent(interactionEvent);
     }
 
     @SubscribeEvent
     public void onRightClickEvent(final PlayerInteractEvent.RightClickBlock event) {
-        if (event.getHand() == EnumHand.OFF_HAND) {
+        if (event.getHand() == EnumHand.OFF_HAND || event.isCanceled()) {
             return;
         }
+        final InteractionEvent interactionEvent = InteractionEvent.createEvent(event);
 
-        final Block block = event.getWorld().getBlockState(event.getPos()).getBlock();
+        handleEvent(interactionEvent);
+    }
 
-        if (block instanceof BlockWrapper) {
-            ((BlockWrapper) block).onRightClickEvent(event);
+    private static void handleEvent(final InteractionEvent event) {
+        final Block block = event.getWorld().getBlockState(event.getBlockPos()).getBlock();
+
+        if (BlockHelper.isCarpentersBlock(block)) {
+
+            if (event.getInteraction() != Interaction.NONE) {
+                event.setSuccessful(true);
+            }
+
+            final BaseStateTileEntity tileEntity = ((BlockWrapper) block).getTileEntity(event.getWorld(), event.getBlockPos());
+            if (tileEntity != null) {
+                tileEntity.handleInteractionEvent(event);
+            }
         }
     }
 }

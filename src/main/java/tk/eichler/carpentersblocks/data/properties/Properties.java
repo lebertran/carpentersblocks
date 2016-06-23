@@ -18,6 +18,7 @@
 package tk.eichler.carpentersblocks.data.properties;
 
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.util.EnumFacing;
 import tk.eichler.carpentersblocks.data.CoverableData;
 
 public final class Properties {
@@ -32,4 +33,7 @@ public final class Properties {
 
     public static final PropertyEnum<EnumOrientation> ORIENTATION =
             PropertyEnum.create("orientation", EnumOrientation.class);
+
+    public static final PropertyEnum<EnumFacing> COVER_FACING =
+            PropertyEnum.create("cover_facing", EnumFacing.class);
 }

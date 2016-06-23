@@ -61,18 +61,39 @@ public class BakedQuadBuilder extends UnpackedBakedQuad.Builder {
      * @param textureMap Texture map of the shape.
      * @param transformations Optional transformations
      */
-    public BakedQuadBuilder(final Polygon polygon, final EnumFacing untransformedFacing,
+    public BakedQuadBuilder(final Polygon polygon, final EnumFacing untransformedFacing, final EnumFacing coverFacing,
                             final Map<EnumFacing, TextureAtlasSprite> textureMap, final Transformation... transformations) {
         super(DEFAULT_FORMAT);
 
         this.facing = TransformationHelper.getTransformedFacing(untransformedFacing, transformations);
-        this.sprite = textureMap.get(this.facing);
+        this.sprite = textureMap.get(getSpriteFacing(coverFacing, this.facing));
+
 
         setQuadOrientation(this.facing);
         setTexture(this.sprite);
         setApplyDiffuseLighting(true);
 
         this.polygon = polygon.createWithTransformation(transformations);
+    }
+
+    //@TODO: Add log rotation
+    private static EnumFacing getSpriteFacing(final EnumFacing coverFacing, final EnumFacing side) {
+        if (side.getAxis() == EnumFacing.Axis.Y) {
+            return side;
+        }
+
+        switch (coverFacing) {
+            case NORTH:
+                return side;
+            case EAST:
+                return side.rotateYCCW();
+            case SOUTH:
+                return side.rotateY().rotateY();
+            case WEST:
+                return side.rotateY();
+            default:
+                return side;
+        }
     }
 
 

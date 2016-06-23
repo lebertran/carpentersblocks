@@ -24,7 +24,6 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -36,21 +35,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import tk.eichler.carpentersblocks.Constants;
-import tk.eichler.carpentersblocks.util.BlockHelper;
+import tk.eichler.carpentersblocks.registry.helper.RegistryHelper;
+import tk.eichler.carpentersblocks.tileentities.CoverableBlockTileEntity;
 import tk.eichler.carpentersblocks.util.CarpentersCreativeTab;
-import tk.eichler.carpentersblocks.util.ItemHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.text.MessageFormat;
 import java.util.List;
 
+/**
+ * Block wrapper class, handles rendering and placement logic using information from the corresponding Tile Entity.
+ * @param <T> Corresponding tile entity.
+ */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @SuppressWarnings("deprecation")
-public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer implements BaseBlock {
-
+public abstract class BlockWrapper<T extends CoverableBlockTileEntity> extends BlockContainer implements BaseBlock<T> {
 
     private ItemBlock itemBlock = null;
 
@@ -61,6 +63,8 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
 
         setRegistryName(getName());
         setUnlocalizedName(getName());
+
+        setHardness(2.0F);
     }
 
     @Override
@@ -69,63 +73,23 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
     }
 
     @SuppressWarnings("unchecked")
-    public T getActualBlock() {
-        return (T) this;
+    @Nullable
+    public T getTileEntity(final IBlockAccess world, final BlockPos pos) {
+        return (T) world.getTileEntity(pos);
+    }
+
+    @Override
+    public String getUnlocalizedName() {
+        return MessageFormat.format("{0}.{1}", Constants.MOD_ID, super.getUnlocalizedName());
     }
 
     public ItemBlock getItemBlock() {
         if (itemBlock == null) {
-            itemBlock = BlockHelper.createItemBlock(this);
+            itemBlock = RegistryHelper.createItemBlock(this);
         }
 
         return this.itemBlock;
     }
-
-    public void onRightClickEvent(final PlayerInteractEvent.RightClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final ItemStack heldItem = player.getHeldItemMainhand();
-        final EnumFacing facing;
-
-        if (event.getFace() == null) {
-            facing = EnumFacing.NORTH;
-        } else {
-            facing = event.getFace();
-        }
-
-        if (heldItem == null) {
-            return;
-        }
-
-        if (this instanceof BlockShapeable && ItemHelper.isCarpentersHammer(heldItem)) { //@TODO replace
-            ((BlockShapeable) this).onCarpentersHammerRightClick(event.getWorld(), event.getPos(), facing);
-            event.setCanceled(true);
-            return;
-        }
-
-        if (this instanceof BlockCoverable && BlockHelper.isValidCoverBlock(heldItem)) {
-            if (((BlockCoverable) this).onChangeCover(event.getWorld(), event.getPos(), heldItem, facing)) {
-                event.setCanceled(true);
-            }
-        }
-    }
-
-    public void onLeftClickEvent(final PlayerInteractEvent.LeftClickBlock event) {
-        final ItemStack heldItem = event.getEntityPlayer().getHeldItemMainhand();
-
-        if (heldItem == null) {
-            return;
-        }
-
-        if (ItemHelper.isCarpentersHammer(heldItem)) { //@TODO replace
-            if ((this instanceof BlockCoverable) && (event.getEntityPlayer().isSneaking())) {
-                ((BlockCoverable) this).onRemoveCover(event.getWorld(), event.getPos());
-            } else if (this instanceof BlockShapeable) {
-                ((BlockShapeable) this).onCarpentersHammerLeftClick(
-                        event.getWorld(), event.getPos(), event.getEntityPlayer().getHorizontalFacing());
-            }
-        }
-    }
-
 
     @Override
     protected BlockStateContainer createBlockState() {
@@ -134,7 +98,7 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
 
     @Override
     public IBlockState getExtendedState(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
-        return this.createExtendedState(state, world, pos);
+        return this.getTileEntity(world, pos).createBlockState(state);
     }
 
     @Override
@@ -151,7 +115,9 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
                                       @Nullable final Entity entityIn) {
         super.addCollisionBoxToList(state, worldIn, pos, entityBox, collidingBoxes, entityIn);
 
-        final AxisAlignedBB[] boundingBoxes = this.getCollisionBoxes(state, worldIn, pos);
+        final AxisAlignedBB[] boundingBoxes = this.getCollisionBoxes(
+                this.getTileEntity(worldIn, pos)
+        );
 
         for (final AxisAlignedBB box : boundingBoxes) {
             addCollisionBoxToList(pos, entityBox, collidingBoxes, box);
@@ -160,7 +126,9 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
 
     @Override
     public AxisAlignedBB getBoundingBox(final IBlockState state, final IBlockAccess source, final BlockPos pos) {
-        return this.getMainBoundingBox(state, source, pos);
+        return this.getMainBoundingBox(
+                this.getTileEntity(source, pos)
+        );
     }
 
     @Override
@@ -168,19 +136,20 @@ public abstract class BlockWrapper<T extends BaseBlock> extends BlockContainer i
         return 0;
     }
 
+
     @Override
-    public int getLightOpacity(final IBlockState state) {
+    public int getLightOpacity(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
         if (this instanceof BlockCoverable) {
-            return ((BlockCoverable) this).getCoverLightValue(state);
+            return ((BlockCoverable<T>) this).getCoverLightOpacity(getTileEntity(world, pos));
         }
 
         return Constants.DEFAULT_LIGHT_OPACITY;
     }
 
     @Override
-    public int getLightValue(final IBlockState state) {
+    public int getLightValue(final IBlockState state, final IBlockAccess world, final BlockPos pos) {
         if (this instanceof BlockCoverable) {
-            return ((BlockCoverable) this).getCoverLightValue(state);
+            return ((BlockCoverable<T>) this).getCoverLightValue(getTileEntity(world, pos));
         }
 
         return 0;

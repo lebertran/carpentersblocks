@@ -21,6 +21,7 @@ import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
+import tk.eichler.carpentersblocks.data.properties.EnumOrientation;
 import tk.eichler.carpentersblocks.data.properties.EnumShape;
 import tk.eichler.carpentersblocks.model.helper.BakedQuadBuilder;
 import tk.eichler.carpentersblocks.model.helper.Polygon;
@@ -76,32 +77,33 @@ final class CarpentersSlopeModelData {
         }
     }
 
-    static Transformation[] getTransformations(final EnumShape shape) {
-        switch (shape) {
-            case NORTH_SLOPE:
+    static Transformation[] getTransformations(final EnumOrientation orientation) {
+        switch (orientation) {
+            case NORTH_DOWN:
                 return TransformationHelper.NO_TRANSFORMS;
-            case SOUTH_SLOPE:
+            case SOUTH_DOWN:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180);
-            case WEST_SLOPE:
+            case WEST_DOWN:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270);
-            case EAST_SLOPE:
+            case EAST_DOWN:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90);
-            case NORTH_TOP_SLOPE:
+            case NORTH_UP:
                 return TransformationHelper.get(TransformationHelper.ROTATE_UP);
-            case SOUTH_TOP_SLOPE:
+            case SOUTH_UP:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_180, TransformationHelper.ROTATE_UP);
-            case WEST_TOP_SLOPE:
+            case WEST_UP:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_270, TransformationHelper.ROTATE_UP);
-            case EAST_TOP_SLOPE:
+            case EAST_UP:
                 return TransformationHelper.get(TransformationHelper.ROTATE_SIDE_90, TransformationHelper.ROTATE_UP);
             default:
                 return TransformationHelper.NO_TRANSFORMS;
         }
     }
 
-    static BakedQuad getBakedQuad(final EnumFacing facing, final EnumShape shape, final Map<EnumFacing, TextureAtlasSprite> sprite) {
-        final Transformation[] transformations = getTransformations(shape);
+    static BakedQuad getBakedQuad(final EnumFacing facing, final EnumShape shape, final EnumOrientation orientation,
+                                  final Map<EnumFacing, TextureAtlasSprite> sprite) {
+        final Transformation[] transformations = getTransformations(orientation);
 
-        return new BakedQuadBuilder(getDefaultSlopePolygon(facing), facing, sprite, transformations).build();
+        return new BakedQuadBuilder(getDefaultSlopePolygon(facing), facing, EnumFacing.NORTH, sprite, transformations).build();
     }
 }

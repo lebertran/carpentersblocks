@@ -19,12 +19,7 @@ package tk.eichler.carpentersblocks.util;
 
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import tk.eichler.carpentersblocks.blocks.BlockCoverable;
-import tk.eichler.carpentersblocks.blocks.BlockDataHelper;
 import tk.eichler.carpentersblocks.blocks.BlockWrapper;
 
 import javax.annotation.Nullable;
@@ -48,6 +43,25 @@ public final class BlockHelper {
         return Block.getBlockFromItem(stack.getItem());
     }
 
+    public static boolean isCarpentersBlock(final Block block) {
+        return block instanceof BlockWrapper;
+    }
+
+    public static boolean isCarpentersBlock(@Nullable final ItemStack stack) {
+        if (stack == null) {
+            return false;
+        }
+
+        final Block block = Block.getBlockFromItem(stack.getItem());
+
+        // noinspection ConstantConditions
+        if (block == null) {
+            return false;
+        }
+
+        return (block instanceof BlockWrapper);
+    }
+
     @SuppressWarnings("ConstantConditions")
     public static boolean isValidCoverBlock(@Nullable final ItemStack blockProp) {
         if (blockProp == null) {
@@ -63,33 +77,5 @@ public final class BlockHelper {
 
         return block.getDefaultState().getMaterial().isSolid();
 
-    }
-
-    public static boolean doesRenderTransparentSide(final IBlockState blockState, final IBlockState borderingState) { //@TODO
-        return isGlassyBlock(borderingState) && isGlassyBlock(blockState);
-    }
-
-    public static boolean isGlassyBlock(final IBlockState blockState) {
-        final Block block = blockState.getBlock();
-
-        if (block == Blocks.GLASS || block == Blocks.STAINED_GLASS) {
-            return true;
-        }
-
-        if (block instanceof BlockCoverable) {
-            final Block coveringBlock = BlockDataHelper.getCoverData(blockState).getCoveringBlock();
-
-            if (coveringBlock == Blocks.GLASS || coveringBlock == Blocks.STAINED_GLASS) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static ItemBlock createItemBlock(final BlockWrapper wrapper) {
-        final ItemBlock itemBlock = new ItemBlock(wrapper);
-        itemBlock.setRegistryName(wrapper.getRegistryName());
-        itemBlock.setUnlocalizedName(wrapper.getUnlocalizedName());
-        return itemBlock;
     }
 }

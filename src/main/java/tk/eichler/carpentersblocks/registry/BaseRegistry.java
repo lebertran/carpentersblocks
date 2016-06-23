@@ -25,6 +25,9 @@ public interface BaseRegistry {
     default void onInit() {
     }
 
+    default void onPostInit() {
+    }
+
     /**
      * Override this method to return true if the registry has its own EventHandler methods
      * @return boolean

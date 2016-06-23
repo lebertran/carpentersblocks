@@ -29,7 +29,6 @@ import tk.eichler.carpentersblocks.model.helper.Transformation;
 import tk.eichler.carpentersblocks.model.helper.TransformationHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.text.MessageFormat;
 import java.util.Map;
 
 import static tk.eichler.carpentersblocks.model.helper.EnumCoordinates.*;
@@ -65,7 +64,7 @@ public final class CarpentersBlockModelData {
     private static final Polygon POLYGON_BOTTOM_SLAB_SIDE_EAST =
             POLYGON_BOTTOM_SLAB_SIDE_NORTH.createWithTransformation(TransformationHelper.ROTATE_SIDE_90);
 
-    private static Polygon getDefaultSlabPolygon(final EnumFacing facing) {
+    public static Polygon getDefaultSlabPolygon(final EnumFacing facing) {
         switch (facing) {
             case UP:
                 return POLYGON_BOTTOM_SLAB_TOP;
@@ -103,7 +102,7 @@ public final class CarpentersBlockModelData {
         }
     }
 
-    static BakedQuad createQuad(final EnumShape shape, final EnumOrientation orientation,
+    static BakedQuad createQuad(final EnumShape shape, final EnumOrientation orientation, final EnumFacing coverFacing,
                                 final EnumFacing facing, final Map<EnumFacing, TextureAtlasSprite> textureMap) {
         final Polygon polygon;
         final Transformation[] transforms;
@@ -118,9 +117,11 @@ public final class CarpentersBlockModelData {
                 transforms = getSlabTransformations(orientation);
                 break;
             default:
-                throw new IllegalArgumentException(MessageFormat.format("Invalid shape {0} in CarpentersBlockModel.", shape));
+                polygon = BaseModelData.getFullPolygon(facing);
+                transforms = NO_TRANSFORMS;
+                break;
         }
 
-        return new BakedQuadBuilder(polygon, facing, textureMap, transforms).build();
+        return new BakedQuadBuilder(polygon, facing, coverFacing, textureMap, transforms).build();
     }
 }
