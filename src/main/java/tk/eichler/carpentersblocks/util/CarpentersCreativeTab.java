@@ -13,6 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with Carpenter's Blocks.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 package tk.eichler.carpentersblocks.util;
@@ -20,7 +21,7 @@ package tk.eichler.carpentersblocks.util;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import tk.eichler.carpentersblocks.Constants;
-import tk.eichler.carpentersblocks.blocks.variants.BlockCuboid;
+import tk.eichler.carpentersblocks.item.CarpentersHammerItem;
 
 import javax.annotation.Nonnull;
 
@@ -40,6 +41,6 @@ public final class CarpentersCreativeTab extends CreativeTabs {
     @Override
     @Nonnull
     public Item getTabIconItem() {
-        return BlockCuboid.getInstance().getItemBlock(); //@TODO: replace by carpenter's hammer.
+        return CarpentersHammerItem.get();
     }
 }
